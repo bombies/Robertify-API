@@ -2,11 +2,15 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
+const compression = require('compression');
+const helmet = require('helmet');
 require('dotenv/config')
 
 // Middle wares
 app.use(express.json());
 app.use(cors());
+app.use(compression());
+app.use(helmet());
 
 // Routes
 const verify = require('./routes/verifyToken');

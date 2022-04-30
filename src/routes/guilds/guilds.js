@@ -11,7 +11,7 @@ router.get('/:guild_id', async (req, res) => {
     const guild = await Guild.findOne({ server_id : Long.fromString(req.params.guild_id) });
 
     if (!guild)
-            return res.status(401).send({ message: `There was no guild found with the ID ${req.params.guild_id}`});
+            return res.status(400).send({ message: `There was no guild found with the ID ${req.params.guild_id}`});
 
     if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
         return res.status(200).send(guild);
@@ -21,7 +21,12 @@ router.get('/:guild_id', async (req, res) => {
             return res.status(400).send({ message: error2.details[0].message });
         
         const obj = {};
-        req.body.fields.forEach(field => obj[field] = guild[field]);
+        const fields = req.body.fields;
+        
+        if (!fields)
+            return res.status(400).send({ message: 'Invalid body!' })
+
+        fields.forEach(field => obj[field] = guild[field]);
         return res.status(200).send(obj);
     }
 })

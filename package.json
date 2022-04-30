@@ -2,7 +2,7 @@
   "name": "robertify-api",
   "version": "1.0.0",
   "description": "This is the official API for the Robertify Discord bot",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

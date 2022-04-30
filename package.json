@@ -1,0 +1,19 @@
+{
+  "name": "robertify-api",
+  "version": "1.0.0",
+  "description": "This is the official API for the Robertify Discord bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bombies/Robertify-API.git"
+  },
+  "author": "bombies",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bombies/Robertify-API/issues"
+  },
+  "homepage": "https://github.com/bombies/Robertify-API#readme"
+}

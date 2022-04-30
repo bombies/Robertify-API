@@ -1,12 +1,11 @@
 const router = require('express').Router();
 const Joi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
-const verify = require('./verifyToken');
 
 const guildsRoute = require('./guilds/guilds');
 const favouriteTracksRoute = require('./favouriteTracks');
-router.use('/guilds', verify, guildsRoute);
-router.use('/favtracks', verify, favouriteTracksRoute);
+router.use('/guilds', guildsRoute);
+router.use('/favtracks', favouriteTracksRoute);
 
 router.post('/login', async (req, res) => {
     const { error } = Joi.object({

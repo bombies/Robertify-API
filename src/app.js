@@ -9,8 +9,9 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
+const verify = require('./routes/verifyToken');
 const authRoute = require('./routes/auth')
-app.use('/api', authRoute);
+app.use('/api', verify, authRoute);
 
 // Conncect to MongoDB
 mongoose.connect(

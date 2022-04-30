@@ -8,9 +8,9 @@ require('dotenv/config')
 app.use(express.json());
 app.use(cors());
 
-app.get('/', (req,res) => {
-    res.status(200).send({ message: 'Welcome to the Robertify API'});
-});
+// Routes
+const authRoute = require('./routes/auth')
+app.use('/api', authRoute);
 
 // Conncect to MongoDB
 mongoose.connect(
@@ -23,4 +23,4 @@ mongoose.connect(
 
 app.listen(process.env.LISTEN_PORT || 3000, () => {
     console.log('The API is now running!');
-})
+});

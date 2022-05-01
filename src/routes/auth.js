@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
 })
 
 router.get('/', (req,res) => {
-    res.status(200).send({ message: 'Welcome to the Robertify API'});
+    res.status(200).send({ message: 'Welcome to the Robertify API 🎉'});
 });
 
 module.exports = router;

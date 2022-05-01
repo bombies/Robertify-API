@@ -7,7 +7,7 @@ router.get('/:guild_id', async (req, res) => {
     const { error } = Guild.idValidate(req.params);
     if (error)
         return res.status(400).send({ message: error.details[0].message });
-    
+
     const guild = await Guild.findOne({ server_id : Long.fromString(req.params.guild_id) });
 
     if (!guild)

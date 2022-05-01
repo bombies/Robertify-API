@@ -16,6 +16,9 @@ app.use(helmet());
 const verify = require('./routes/verifyToken');
 const authRoute = require('./routes/auth')
 app.use('/api', verify, authRoute);
+app.use('/', (req,res) => {
+    res.status(200).send({ message: 'Welcome to the API!' })
+})
 
 // Conncect to MongoDB
 mongoose.connect(

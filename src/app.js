@@ -13,10 +13,9 @@ app.use(compression());
 app.use(helmet());
 
 // Routes
-const verify = require('./routes/verifyToken');
 const authRoute = require('./routes/auth')
-app.use('/api', verify, authRoute);
-app.use('/', (req,res) => {
+app.use('/api', authRoute);
+app.get('/', (req,res) => {
     res.status(200).send({ message: 'Welcome to the API!. You need to use the "api" route to interact with the api' })
 })
 

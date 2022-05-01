@@ -29,6 +29,6 @@ mongoose.connect(
     }
 );
 
-app.listen(process.env.LISTEN_PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', () => {
+app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', () => {
     console.log('The API is now running!');
 });

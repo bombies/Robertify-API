@@ -2,6 +2,15 @@ const router = require('express').Router();
 const mongoose = require('mongoose');
 const Long =  require('long');
 const Guild = require('../../models/Guild');
+const Main = require('../../models/Main');
+
+router.get('/', async(req, res) => {
+    const guildCount = (await Main.find()).at(0)?.guild_count;
+    if (!guildCount)
+        return res.status(200).send({ message: "The guild count hasn't been set yet." });
+    return res.status(200).send({ count: guildCount })
+
+});
 
 router.get('/:guild_id', async (req, res) => {
     const { error } = Guild.idValidate(req.params);

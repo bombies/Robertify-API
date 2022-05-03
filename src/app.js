@@ -14,10 +14,7 @@ app.use(helmet());
 
 // Routes
 const authRoute = require('./routes/auth')
-app.use('/api', authRoute);
-app.get('/', (req,res) => {
-    res.status(200).send({ message: 'Welcome to the API!. You need to use the "api" route to interact with the api' })
-})
+app.use('/', authRoute);
 
 // Conncect to MongoDB
 mongoose.connect(

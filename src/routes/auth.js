@@ -4,9 +4,12 @@ const jwt = require('jsonwebtoken');
 
 const guildsRoute = require('./guilds/guilds');
 const favouriteTracksRoute = require('./favouriteTracks');
+const commandsRoute = require('./commands/commands');
 const verify = require('./verifyToken');
+
 router.use('/guilds', verify, guildsRoute);
 router.use('/favtracks', verify, favouriteTracksRoute);
+router.use('/commands', verify, commandsRoute);
 
 router.post('/login', async (req, res) => {
     const { error } = Joi.object({

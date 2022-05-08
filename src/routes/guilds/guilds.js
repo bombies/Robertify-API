@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const mongoose = require('mongoose');
 const Long =  require('long');
 const Guild = require('../../models/Guild');
 const Main = require('../../models/Main');

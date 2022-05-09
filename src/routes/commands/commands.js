@@ -54,8 +54,8 @@ router.get('/:command', async (req, res) => {
     // Cache hit
     if (cachedCommands) {
         const cachedCommandsObj = JSON.parse(cachedCommands);
-        const commandObj = cachedCommandsObj.commands.filter(obj => obj.name.toLowerCase === command);
-        return res.status(200).json(commandObj)
+        const commandObj = cachedCommandsObj.filter(obj => obj.name.toLowerCase() === command.toLowerCase());
+        return res.status(200).json(commandObj[0])
     }
 
     const commandData = await Command.findOne({ name: command });

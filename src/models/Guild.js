@@ -5,7 +5,7 @@ const { Types: { Long } } = mongoose;
 
 const idValidate = (data) => {
     const validation = Joi.object({
-        guild_id: Joi.string().regex(/^[0-9]{18}$/).required()
+        guild_id: Joi.string().regex(/^[0-9]{17,18}$/).required()
     });
     return validation.validate(data);
 }
@@ -37,7 +37,7 @@ const schema = mongoose.Schema({
         users: Object
     },
     toggles: {
-        restricted_voice_channels: Boolean,
+        restricted_text_channels: Boolean,
         restricted_voice_channels: Boolean,
         announce_changelogs: Boolean,
         "8ball": Boolean,
@@ -106,7 +106,10 @@ const schema = mongoose.Schema({
     announcement_channel: Long,
     theme: String,
     server_id: Long,
-    banned_users: Array
+    banned_users: Array,
+    autoplay: Boolean,
+    log_channel: Long,
+    twenty_four_seven_mode: Boolean
 });
 
 module.exports = mongoose.model('Guilds', schema);

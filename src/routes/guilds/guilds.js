@@ -145,17 +145,22 @@ router.patch('/:guild_id', async (req, res) => {
             channel_id: guild.dedicated_channel.channel_id.toString(),
             message_id: guild.dedicated_channel.message_id.toString()
         };
-        console.log(deciatedChannelUnparsed);
 
-        const bannedUsersUnparsed = guild.banned_users.map(val => val.toString());
-
-        guildUnparsed.banned_users = bannedUsersUnparsed;
         guildUnparsed.dedicated_channel = deciatedChannelUnparsed;
         guildUnparsed.server_id = guildUnparsed.server_id.toString();
         guildUnparsed.log_channel = log_channel.id;
         guildUnparsed.restricted_channels = restricted_channels;
         guildUnparsed.permissions = permissions;
+        guildUnparsed.announcement_channel = guildUnparsed.announcement_channel.toString()
 
+        const bannedUsersUnparsed = newGuild.banned_users.map(obj => ({
+            banned_at: obj.banned_at.toString(),
+            banned_id: obj.banned_id.toString(),
+            banned_until: obj.banned_until.toString(),
+            banned_by: obj.banned_by.toString()
+        }));
+
+        guildUnparsed.banned_users = bannedUsersUnparsed;
         redis.setex(HASH_NAME + req.params.guild_id, 3600, JSON.stringify(guildUnparsed))
         res.status(200).json(newGuild);
     } catch (ex) {

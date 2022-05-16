@@ -1,3 +1,5 @@
+const Sentry = require('@sentry/node');
+const Tracing = require('@sentry/tracing');
 const express = require('express');
 const app = express();
 const router = express.Router();

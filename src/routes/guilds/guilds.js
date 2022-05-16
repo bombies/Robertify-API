@@ -19,7 +19,9 @@ const validatePATCHBody = (body) => {
         restricted_channels: Joi.object({
             voice_channels: Joi.array().items(Joi.string()).required(),
             text_channels: Joi.array().items(Joi.string()).required()
-        })
+        }),
+        twenty_four_seven_mode: Joi.bool(),
+        autoplay: Joi.bool()
     });
     return validateObj.validate(body);
 }
@@ -102,7 +104,11 @@ router.patch('/:guild_id', async (req, res) => {
             return res.status(404).send({ message: `There was no guild found with the ID ${req.params.guild_id}`});
     
     try {
-        const { toggles, eight_ball, theme, log_channel, permissions, restricted_channels } = req.body;
+        const { 
+            toggles, eight_ball, theme,
+            log_channel, permissions, restricted_channels,
+            twenty_four_seven_mode, autoplay
+        } = req.body;
 
         permissionsParsed = {};
         restrictedChannelsParsed = {};
@@ -137,7 +143,8 @@ router.patch('/:guild_id', async (req, res) => {
             guild.permissions = permissionsParsed;
         if (restricted_channels)
             guild.restricted_channels = restrictedChannelsParsed;
-        
+        guild.twenty_four_seven_mode = twenty_four_seven_mode;
+        guild.autoplay = autoplay;
         const newGuild = await guild.save();
 
         const guildUnparsed = {...guild._doc};

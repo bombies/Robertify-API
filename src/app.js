@@ -13,6 +13,18 @@ app.use(cors());
 app.use(compression());
 app.use(helmet());
 
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Tracing.Integrations.Express({ app }),
+    ],
+    tracesSampleRate: 1.0,
+  });
+
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
+
 // Routes
 const authRoute = require('./routes/auth')
 app.use('/', authRoute);

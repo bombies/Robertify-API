@@ -21,7 +21,8 @@ const validatePATCHBody = (body) => {
             text_channels: Joi.array().items(Joi.string()).required()
         }),
         twenty_four_seven_mode: Joi.bool(),
-        autoplay: Joi.bool()
+        autoplay: Joi.bool(),
+        locale: Joi.string().allow(null).allow(undefined)
     });
     return validateObj.validate(body);
 }
@@ -70,6 +71,7 @@ router.get('/:guild_id', async (req, res) => {
     guild._doc.restricted_channels = restrictedChannelsParsed;
     guild._doc.announcement_channel = guild.announcement_channel.toString();
     guild._doc.log_channel = guild.log_channel ? guild.log_channel.toString() : null;
+    guild._doc.locale ??= 'english';
 
     if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
         return res.status(200).send(guild._doc);

@@ -36,7 +36,7 @@ router.get('/', (req,res) => {
 
 const verifyHMACSignature = (key) => {
     return function(req, res, next) {
-        const hash = req.header("x-patreon-signature"),
+        const hash = req.header["x-patreon-signature"],
             hmac = crypto.createHmac("md5", key);
 
         req.on("data", function(data) {

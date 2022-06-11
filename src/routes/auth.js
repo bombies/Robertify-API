@@ -35,7 +35,7 @@ router.get('/', (req,res) => {
 });
 
 const verifyHMACSignature = (signature, secret) => {
-    return bufferEq(new Buffer(signature), new Buffer(secret));
+    return bufferEq(Buffer.from(signature), Buffer.from(secret));
 }
 
 module.exports = router;

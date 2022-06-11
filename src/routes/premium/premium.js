@@ -17,6 +17,11 @@ const postBodyValidate = (body) => {
     return validate.validate(body);
 }
 
+router.post('/hook', async(req, res) => {
+    console.log(req);
+    res.send(200).json(req);
+})
+
 router.post('/', async(req, res) => {
     const { body } = req;
     const { error } = postBodyValidate(body);

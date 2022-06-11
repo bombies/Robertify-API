@@ -35,8 +35,8 @@ router.get('/', (req,res) => {
 });
 
 const verifyHMACSignature = (signature, secret, data) => {
-    const hmac = crypto.createHmac("md5", secret);
-    // hmac.update(Buffer.from(data));
+    const hmac = crypto.createHmac("md5", secret)
+        .update(data);
 
     const crypted = hmac.digest('hex');
 

@@ -30,7 +30,7 @@ app.use(Sentry.Handlers.tracingHandler());
 // Routes
 const authRoute = require('./routes/auth')
 app.use('/', authRoute);
-router.post('/premium/hook/', async(req, res) => {
+router.post('/premium/hook', async(req, res) => {
     console.log(req);
     res.send(200).json(req);
 })

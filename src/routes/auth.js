@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Joi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
+const bufferEq = require('buffer-equal-constant-time');
 
 const guildsRoute = require('./guilds/guilds');
 const favouriteTracksRoute = require('./favouriteTracks');
@@ -32,5 +33,9 @@ router.post('/login', async (req, res) => {
 router.get('/', (req,res) => {
     res.status(200).send({ message: 'Welcome to the Robertify API 🎉'});
 });
+
+export function verifyHMACSignature(signature, secret) {
+    return bufferEq(new Buffer(signature), new Buffer(secret));
+}
 
 module.exports = router;

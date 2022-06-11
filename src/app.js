@@ -29,16 +29,19 @@ app.use(Sentry.Handlers.tracingHandler());
 
 // Routes
 const authRoute = require('./routes/auth')
+const {verifyHMACSignature} = require("./routes/auth");
 app.use('/', authRoute);
 app.post('/premiumhook', async(req, res) => {
-    console.log(req.headers);
-    res.status(200).json(req.headers);
-})
+    const signature = req.headers['x-patreon-signature'];
+    if (!signature)
+        res.status(400).json({ success: false, error: 'Invalid request'})
 
-app.get('/premiumhook', async(req, res) => {
-    console.log(req.headers);
-    res.status(200).json(req.headers);
-})
+    if (verifyHMACSignature(signature, process.env.PATREON_SECRET) === true) {
+        return res.status(200).json({ success: true })
+    } else {
+        return res.status(400).json({ success: false })
+    }
+});
 
 // Connect to MongoDB
 mongoose.connect(

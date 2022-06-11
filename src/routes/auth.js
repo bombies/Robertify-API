@@ -34,8 +34,9 @@ router.get('/', (req,res) => {
     res.status(200).send({ message: 'Welcome to the Robertify API 🎉'});
 });
 
-module.exports.verifyHMACSignature = function verifyHMACSignature(signature, secret) {
+const verifyHMACSignature = (signature, secret) => {
     return bufferEq(new Buffer(signature), new Buffer(secret));
 }
 
 module.exports = router;
+module.exports.verifyHMACSignature = verifyHMACSignature();

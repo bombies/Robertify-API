@@ -31,7 +31,7 @@ app.use(Sentry.Handlers.tracingHandler());
 const authRoute = require('./routes/auth')
 app.use('/', authRoute);
 
-// Conncect to MongoDB
+// Connect to MongoDB
 mongoose.connect(
     `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER_NAME}.${process.env.MONGO_HOSTNAME}/${process.env.MONGO_DATABASE_NAME}`,
     { useNewUrlParser: true },

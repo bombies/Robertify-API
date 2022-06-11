@@ -31,8 +31,13 @@ app.use(Sentry.Handlers.tracingHandler());
 const authRoute = require('./routes/auth')
 app.use('/', authRoute);
 app.post('/premiumhook', async(req, res) => {
-    console.log(req);
-    res.send(200).json(req);
+    console.log(req.headers);
+    res.status(200).json(req.headers);
+})
+
+app.get('/premiumhook', async(req, res) => {
+    console.log(req.headers);
+    res.status(200).json(req.headers);
 })
 
 // Connect to MongoDB

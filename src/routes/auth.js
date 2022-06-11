@@ -39,4 +39,4 @@ const verifyHMACSignature = (signature, secret) => {
 }
 
 module.exports = router;
-module.exports.verifyHMACSignature = verifyHMACSignature();
+module.exports.verifyHMACSignature = verifyHMACSignature;

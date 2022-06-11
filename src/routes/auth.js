@@ -34,14 +34,31 @@ router.get('/', (req,res) => {
     res.status(200).send({ message: 'Welcome to the Robertify API 🎉'});
 });
 
-const verifyHMACSignature = (signature, secret, data) => {
-    const hmac = crypto.createHmac("md5", secret)
-        .update(data);
+const verifyHMACSignature = (key) => {
+    return function(req, res, next) {
+        const hash = req.header("x-patreon-signature"),
+            hmac = crypto.createHmac("md5", key);
 
-    const crypted = hmac.digest('hex');
+        req.on("data", function(data) {
+            hmac.update(data);
+        });
 
-    console.log("Generated crypted: ", crypted);
-    return crypted === signature;
+        req.on("end", function() {
+            const crypted = hmac.digest("hex");
+
+            if(crypted === hash) {
+                // Valid request
+                return res.send("Success!", { "Content-Type": "text/plain" });
+            } else {
+                // Invalid request
+                return res.send("Invalid TrialPay hash", { "Content-Type": "text/plain" }, 403);
+            }
+        });
+
+        req.on("error", function(err) {
+            return next(err);
+        });
+    }
 }
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const Joi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
-const bufferEq = require('buffer-equal-constant-time');
+const crypto = require('crypto');
 
 const guildsRoute = require('./guilds/guilds');
 const favouriteTracksRoute = require('./favouriteTracks');
@@ -34,8 +34,14 @@ router.get('/', (req,res) => {
     res.status(200).send({ message: 'Welcome to the Robertify API 🎉'});
 });
 
-const verifyHMACSignature = (signature, secret) => {
-    return bufferEq(Buffer.from(signature), Buffer.from(secret));
+const verifyHMACSignature = (signature, secret, data) => {
+    const hmac = crypto.createHmac("md5", secret);
+    hmac.update(data);
+
+    const crypted = hmac.digest('hex');
+
+    console.log("Generated crypted: ", crypted);
+    return crypted === signature;
 }
 
 module.exports = router;

@@ -48,10 +48,10 @@ const verifyHMACSignature = (key) => {
 
             if(crypted === hash) {
                 // Valid request
-                return res.status(200).send("Success!", { "Content-Type": "text/plain" });
+                return res.status(200).send("Success!");
             } else {
                 // Invalid request
-                return res.status(403).send("Invalid TrialPay hash", { "Content-Type": "text/plain" });
+                return res.status(403).send("Invalid TrialPay hash");
             }
         });
 

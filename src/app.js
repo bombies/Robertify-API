@@ -37,8 +37,10 @@ app.post('/premiumhook', async(req, res) => {
         res.status(400).json({ success: false, error: 'Invalid request'})
 
     if (verifyHMACSignature(signature, process.env.PATREON_SECRET) === true) {
+        console.log(`signature: ${signature}, secret: ${process.env.PATREON_SECRET} | PASSED`);
         return res.status(200).json({ success: true })
     } else {
+        console.log(`signature: ${signature}, secret: ${process.env.PATREON_SECRET} | FAILED`);
         return res.status(400).json({ success: false })
     }
 });

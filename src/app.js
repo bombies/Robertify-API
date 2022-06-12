@@ -49,15 +49,32 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
-            console.log(req.body['included'][1]['attributes']['discord_id'])
             const discordID = req.body['included'][1]['attributes']['discord_id'];
+            const entitledTiers = req.body['data']['currently_entitled_tiers'];
+
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
                     console.log('Handling create event');
                     const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
                     const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
 
-                    console.log(startDate.toLocaleString('en-US'), endDate);
+                    if (!entitledTiers) {
+                        console.error('There was no tier data. The field doesn\'t seem to exist.');
+                        return res.status(400).json({
+                            success: false,
+                            error: 'Bad request. Missing currently entitle tiers field.'
+                        })
+                    }
+
+                    const entitledTiersData = entitledTiers['data'];
+                    if (!entitledTiersData) {
+                        console.error('There was no tier data.')
+                        return res.status(404).json({success: false, error: 'There was no tier data!'});
+                    }
+
+                    const tierID = entitledTiersData[0]['id'];
+                    const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
+                    console.log(rewards);
 
                     await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                         embeds: [

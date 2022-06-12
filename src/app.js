@@ -12,14 +12,15 @@ require('dotenv/config')
 
 // Middle wares
 app.use(express.json());
-// app.use((req, res, next) => {
-//     let data = '';
-//     req.on('data', chunk => { data += chunk });
-//     req.on('end', () => {
-//         req.rawBody = data
-//         next();
-//     })
-// })
+app.use((req, res, next) => {
+    console.log('Starting raw data parse');
+    let data = '';
+    req.on('data', chunk => { console.log('Updating raw data'); data += chunk });
+    req.on('end', () => {
+        req.rawBody = data
+        next();
+    })
+})
 app.use(cors());
 app.use(compression());
 app.use(helmet());

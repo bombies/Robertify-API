@@ -39,6 +39,7 @@ app.use(Sentry.Handlers.tracingHandler());
 // Routes
 const authRoute = require('./routes/auth')
 const {computeHash} = require("./routes/auth");
+const axios = require("axios");
 
 app.use('/', authRoute);
 
@@ -51,6 +52,17 @@ app.post('/premiumhook', async (req, res) => {
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
                     console.log('Handling create event');
+                    await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                        embeds: [
+                            {
+                                title: 'New Premium Pledge',
+                                type: 'rich',
+                                description: 'Someone has made a premium pledge!',
+                                color: '16740864'
+                            }
+                        ]
+                    })
+
                     break;
                 }
                 case "members:pledge:update": {

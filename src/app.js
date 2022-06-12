@@ -17,7 +17,8 @@ app.use((req, res, next) => {
     let data = '';
     req.on('data', chunk => { console.log('Updating raw data'); data += chunk });
     req.on('end', () => {
-        req.rawBody = data
+        console.log('Ending raw data update');
+        req.rawBody = data;
         next();
     })
 })

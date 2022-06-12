@@ -7,7 +7,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const compression = require('compression');
 const helmet = require('helmet');
-const verifyHmacSignature = require('express-verify-hmac-signature');
+const { computeHash } = require("./routes/auth");
+
 require('dotenv/config')
 
 // Middle wares
@@ -30,14 +31,13 @@ app.use(Sentry.Handlers.tracingHandler());
 
 // Routes
 const authRoute = require('./routes/auth')
-const {ComputeHash} = require("./routes/auth");
 
 app.use('/', authRoute);
 app.post('/premiumhook', async (req, res) => {
     try {
         const secret = process.env.PATREON_SECRET;
         const signature = req.headers['x-patreon-signature'];
-        const hash = ComputeHash(secret, req.body);
+        const hash = computeHash(req.body);
 
         console.log(signature, hash);
         const verified = signature === hash;

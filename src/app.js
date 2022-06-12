@@ -63,19 +63,19 @@ app.post('/premiumhook', async (req, res) => {
                         console.error('There was no tier data. The field doesn\'t seem to exist.');
                         return res.status(400).json({
                             success: false,
-                            error: 'Bad request. Missing currently entitle tiers field.'
+                            error: 'Bad request. Missing currently entitled tiers field.'
                         })
                     }
 
                     const entitledTiersData = entitledTiers['data'];
                     if (!entitledTiersData) {
                         console.error('There was no tier data.')
-                        return res.status(404).json({success: false, error: 'There was no tier data!'});
+                        return res.status(200).json({success: false, error: 'There was no tier data!'});
                     }
 
                     if (entitledTiersData.length === 0) {
                         console.error('There was no tier data.')
-                        return res.status(404).json({success: false, error: 'There was no tier data!'});
+                        return res.status(200).json({success: false, error: 'There was no tier data!'});
                     }
 
                     const tierID = entitledTiersData[0]['id'];

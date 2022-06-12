@@ -64,7 +64,7 @@ const verifyHMACSignature = (key) => {
 /**
  * @return {string}
  */
-exports.ComputeHash = function (secret, payload)
+module.exports.ComputeHash = function (secret, payload)
 {
     // string to be hashed
     const str = JSON.stringify(payload);

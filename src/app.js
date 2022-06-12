@@ -49,7 +49,6 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
-            fs.writeFileSync('./reqbody.json', JSON.stringify(req.body));
             const discordID = req.body['included'][1]['discord_id'];
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {

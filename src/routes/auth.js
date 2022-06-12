@@ -34,33 +34,6 @@ router.get('/', (req,res) => {
     res.status(200).send({ message: 'Welcome to the Robertify API 🎉'});
 });
 
-const verifyHMACSignature = (key) => {
-    return function(req, res, next) {
-        const hash = req.header["x-patreon-signature"],
-            hmac = crypto.createHmac("md5", key);
-
-        req.on("data", function(data) {
-            hmac.update(data);
-        });
-
-        req.on("end", function() {
-            const crypted = hmac.digest("hex");
-
-            if(crypted === hash) {
-                // Valid request
-                return res.status(200).send("Success!");
-            } else {
-                // Invalid request
-                return res.status(403).send("Invalid TrialPay hash");
-            }
-        });
-
-        req.on("error", function(err) {
-            return next(err);
-        });
-    }
-}
-
 const computeHash = (secret, payload) => {
     const str = JSON.stringify(payload);
 
@@ -75,5 +48,4 @@ const computeHash = (secret, payload) => {
 }
 
 module.exports = router;
-module.exports.verifyHMACSignature = verifyHMACSignature;
 module.exports.computeHash = computeHash;

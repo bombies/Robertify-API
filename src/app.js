@@ -7,8 +7,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const compression = require('compression');
 const helmet = require('helmet');
-const { computeHash } = require("./routes/auth");
-
+const verifyHmacSignature = require('express-verify-hmac-signature');
 require('dotenv/config')
 
 // Middle wares
@@ -31,6 +30,7 @@ app.use(Sentry.Handlers.tracingHandler());
 
 // Routes
 const authRoute = require('./routes/auth')
+const {computeHash} = require("./routes/auth");
 
 app.use('/', authRoute);
 app.post('/premiumhook', async (req, res) => {

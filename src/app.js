@@ -46,6 +46,7 @@ app.post('/premiumhook', async (req, res) => {
         else
             res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
     } catch (e) {
+        console.log('Invalid webhook signature', e)
         res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
     }
 });

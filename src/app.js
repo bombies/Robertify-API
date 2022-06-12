@@ -35,16 +35,15 @@ const {computeHash} = require("./routes/auth");
 app.use('/', authRoute);
 app.post('/premiumhook', async (req, res) => {
     try {
-        const secret = process.env.PATREON_SECRET;
-        const signature = req.headers['x-patreon-signature'];
-        const hash = computeHash(secret, req.body);
-
-        console.log(signature, hash);
-        const verified = signature === hash;
-        if (verified)
+        const verified = computeHash(req);
+        if (verified) {
+            console.log('Signature is valid!');
             return res.status(200).json({ success: true, message: 'Valid webhook signature!' });
-        else
-            res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
+        }
+        else {
+            console.log('Invalid signature!')
+            return res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
+        }
     } catch (e) {
         console.log('Invalid webhook signature', e)
         res.status(401).json({ success: false, error: 'Invalid webhook signature!' });

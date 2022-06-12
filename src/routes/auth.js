@@ -34,17 +34,14 @@ router.get('/', (req,res) => {
     res.status(200).send({ message: 'Welcome to the Robertify API 🎉'});
 });
 
-const computeHash = (secret, payload) => {
-    const str = JSON.stringify(payload);
+const computeHash = (request) => {
+    const secret = process.env.PATREON_SECRET;
 
-    // create a md5 hasher
-    const md5Hasher = crypto.createHmac("md5", secret);
+    const hash = crypto.createHmac("md5", secret)
+        .update(request.rawBody)
+        .digest("hex");
 
-    // hash the string
-    // and set the output format
-    const hash = md5Hasher.update(str).digest("hex");
-
-    return(hash);
+    return (request.header("x-patreon-signature") === hash);
 }
 
 module.exports = router;

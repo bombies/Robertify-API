@@ -56,7 +56,7 @@ app.post('/premiumhook', async (req, res) => {
                             {
                                 title: 'New Premium Pledge',
                                 type: 'rich',
-                                description: 'Someone has made a premium pledge!',
+                                description: JSON.stringify(req.body),
                                 color: '16740864'
                             }
                         ]
@@ -66,10 +66,30 @@ app.post('/premiumhook', async (req, res) => {
                 }
                 case "members:pledge:update": {
                     console.log('Handling update event');
+                    await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                        embeds: [
+                            {
+                                title: 'Updated Premium Pledge',
+                                type: 'rich',
+                                description: 'Someone has made an update to their premium pledge!',
+                                color: '16740864'
+                            }
+                        ]
+                    })
                     break;
                 }
                 case "members:pledge:delete": {
                     console.log('Handling delete event');
+                    await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                        embeds: [
+                            {
+                                title: 'Deleted Premium Pledge',
+                                type: 'rich',
+                                description: 'Someone has removed their premium pledge!',
+                                color: '16740864'
+                            }
+                        ]
+                    })
                     break;
                 }
                 default: {

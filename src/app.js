@@ -50,6 +50,7 @@ app.post('/premiumhook', async (req, res) => {
         const verified = computeHash(req);
         if (verified) {
             fs.writeFileSync('./reqbody.json', JSON.stringify(req.body));
+            const discordID = req.body['included'][1]['discord_id'];
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
                     console.log('Handling create event');
@@ -58,7 +59,7 @@ app.post('/premiumhook', async (req, res) => {
                             {
                                 title: 'New Premium Pledge',
                                 type: 'rich',
-                                description: 'Someone has made a premium pledge!',
+                                description: `<@${discordID}> has made a premium pledge!`,
                                 color: '16740864'
                             }
                         ]
@@ -73,7 +74,7 @@ app.post('/premiumhook', async (req, res) => {
                             {
                                 title: 'Updated Premium Pledge',
                                 type: 'rich',
-                                description: 'Someone has made an update to their premium pledge!',
+                                description: `<@${discordID}> has made an update to their premium pledge!`,
                                 color: '16740864'
                             }
                         ]
@@ -87,7 +88,7 @@ app.post('/premiumhook', async (req, res) => {
                             {
                                 title: 'Deleted Premium Pledge',
                                 type: 'rich',
-                                description: 'Someone has removed their premium pledge!',
+                                description: `<@${discordID}> has removed their premium pledge!`,
                                 color: '16740864'
                             }
                         ]

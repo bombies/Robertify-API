@@ -43,7 +43,9 @@ const {computeHash} = require("./routes/auth");
 app.use('/', authRoute);
 app.post('/premiumhook', async (req, res) => {
     try {
+        console.log(req.headers);
         const verified = computeHash(req);
+        console.log(verified);
         if (verified) {
             console.log('Signature is valid!');
             return res.status(200).json({ success: true, message: 'Valid webhook signature!' });

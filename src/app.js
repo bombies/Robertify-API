@@ -121,6 +121,7 @@ app.post('/premiumhook', async (req, res) => {
                     return res.status(401).json({ success: true, error: `This type of webhook trigger isn't handled: (${req.headers['x-patreon-event']})` })
                 }
             }
+            fs.writeFileSync('./realbody.json', req.body);
             return res.status(200).json({ success: true, message: 'Valid webhook signature!' });
         }
         else return res.status(401).json({ success: false, error: 'Invalid webhook signature!' });

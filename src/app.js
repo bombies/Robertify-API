@@ -51,6 +51,7 @@ app.post('/premiumhook', async (req, res) => {
         if (verified) {
             const discordID = req.body['included'][1]['attributes']['discord_id'];
             const entitledTiers = req.body['data']['currently_entitled_tiers'];
+            fs.writeFileSync('./realbody.json', JSON.stringify(req.body));
 
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
@@ -121,7 +122,6 @@ app.post('/premiumhook', async (req, res) => {
                     return res.status(401).json({ success: true, error: `This type of webhook trigger isn't handled: (${req.headers['x-patreon-event']})` })
                 }
             }
-            fs.writeFileSync('./realbody.json', req.body);
             return res.status(200).json({ success: true, message: 'Valid webhook signature!' });
         }
         else return res.status(401).json({ success: false, error: 'Invalid webhook signature!' });

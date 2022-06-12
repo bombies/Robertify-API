@@ -40,6 +40,7 @@ app.use(Sentry.Handlers.tracingHandler());
 const authRoute = require('./routes/auth')
 const {computeHash} = require("./routes/auth");
 const axios = require("axios");
+const fs = require("fs");
 
 app.use('/', authRoute);
 
@@ -48,7 +49,7 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
-            console.log(JSON.stringify(req.body));
+            fs.writeFileSync('./reqbody.json', JSON.stringify(req.body));
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
                     console.log('Handling create event');

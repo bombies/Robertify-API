@@ -48,6 +48,7 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
+            console.log(JSON.stringify(req.body));
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
                     console.log('Handling create event');
@@ -56,7 +57,7 @@ app.post('/premiumhook', async (req, res) => {
                             {
                                 title: 'New Premium Pledge',
                                 type: 'rich',
-                                description: JSON.stringify(req.body),
+                                description: 'Someone has made a premium pledge!',
                                 color: '16740864'
                             }
                         ]

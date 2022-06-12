@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const compression = require('compression');
 const helmet = require('helmet');
+const verifyHmacSignature = require('express-verify-hmac-signature');
 require('dotenv/config')
 
 // Middle wares
@@ -29,9 +30,19 @@ app.use(Sentry.Handlers.tracingHandler());
 
 // Routes
 const authRoute = require('./routes/auth')
-const {verifyHMACSignature} = require("./routes/auth");
+
 app.use('/', authRoute);
-app.post('/premiumhook', verifyHMACSignature(process.env.PATREON_SECRET));
+app.post('/premiumhook', verifyHmacSignature({
+    algorithm: 'md5',
+    secret: process.env.PATREON_SECRET,
+    getDigest: req => req.headers['x-patreon-signature'],
+    getBody: req => (req.body ? JSON.stringify(req.body) : undefined),
+    encoding: 'hex',
+    onFailure: (req, res, next) => {
+        console.log('Invalid webhook signature');
+        res.status(401).json({ success: false, error: 'Invalid webhook signature'})
+    }
+}));
 
 // Connect to MongoDB
 mongoose.connect(

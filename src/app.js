@@ -73,6 +73,11 @@ app.post('/premiumhook', async (req, res) => {
                         return res.status(404).json({success: false, error: 'There was no tier data!'});
                     }
 
+                    if (entitledTiersData.length === 0) {
+                        console.error('There was no tier data.')
+                        return res.status(404).json({success: false, error: 'There was no tier data!'});
+                    }
+
                     const tierID = entitledTiersData[0]['id'];
                     const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
                     console.log(rewards);

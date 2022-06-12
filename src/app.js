@@ -11,17 +11,25 @@ const bodyParser = require('body-parser');
 require('dotenv/config')
 
 // Middle wares
-app.use(express.json());
-app.use((req, res, next) => {
-    console.log('Starting raw data parse');
-    let data = '';
-    req.on('data', chunk => { console.log('Updating raw data'); data += chunk });
-    req.on('end', () => {
-        console.log('Ending raw data update');
-        req.rawBody = data;
-        next();
-    })
-})
+const rawBodySaver = function (req, res, buf, encoding) {
+    if (buf && buf.length) {
+        req.rawBody = buf.toString(encoding || 'utf8');
+    }
+}
+
+app.use(bodyParser.json({ verify: rawBodySaver }));
+app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
+app.use(bodyParser.raw({ verify: rawBodySaver, type: '*/*' }));
+// app.use((req, res, next) => {
+//     console.log('Starting raw data parse');
+//     let data = '';
+//     req.on('data', chunk => { console.log('Updating raw data'); data += chunk });
+//     req.on('end', () => {
+//         console.log('Ending raw data update');
+//         req.rawBody = data;
+//         next();
+//     })
+// })
 app.use(cors());
 app.use(compression());
 app.use(helmet());

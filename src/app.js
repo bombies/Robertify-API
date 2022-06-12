@@ -37,7 +37,7 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const secret = process.env.PATREON_SECRET;
         const signature = req.headers['x-patreon-signature'];
-        const hash = computeHash(req.body);
+        const hash = computeHash(secret, req.body);
 
         console.log(signature, hash);
         const verified = signature === hash;

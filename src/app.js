@@ -51,7 +51,7 @@ app.post('/premiumhook', async (req, res) => {
         if (verified) {
             const discordID = req.body['included'][1]['attributes']['discord_id'];
             const entitledTiers = req.body['data']['relationships']['currently_entitled_tiers'];
-            fs.writeFileSync('./realbody.json', JSON.stringify(req.body));
+            fs.writeFileSync(`./realbody-${new Date().getTime()}.json`, JSON.stringify(req.body));
 
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {

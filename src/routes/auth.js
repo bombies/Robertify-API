@@ -61,5 +61,23 @@ const verifyHMACSignature = (key) => {
     }
 }
 
+/**
+ * @return {string}
+ */
+exports.ComputeHash = function (secret, payload)
+{
+    // string to be hashed
+    const str = JSON.stringify(payload);
+
+    // create a md5 hasher
+    const md5Hasher = crypto.createHmac("md5", secret);
+
+    // hash the string
+    // and set the output format
+    const hash = md5Hasher.update(str).digest("hex");
+
+    return(hash);
+};
+
 module.exports = router;
 module.exports.verifyHMACSignature = verifyHMACSignature;

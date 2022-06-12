@@ -30,19 +30,25 @@ app.use(Sentry.Handlers.tracingHandler());
 
 // Routes
 const authRoute = require('./routes/auth')
+const {ComputeHash} = require("./routes/auth");
 
 app.use('/', authRoute);
-app.post('/premiumhook', verifyHmacSignature({
-    algorithm: 'md5',
-    secret: process.env.PATREON_SECRET,
-    getDigest: req => req.headers['x-patreon-signature'],
-    getBody: req => (req.body ? JSON.stringify(req.body) : undefined),
-    encoding: 'hex',
-    onFailure: (req, res, next) => {
-        console.log('Invalid webhook signature');
-        res.status(401).json({ success: false, error: 'Invalid webhook signature'})
+app.post('/premiumhook', async (req, res) => {
+    try {
+        const secret = process.env.PATREON_SECRET;
+        const signature = req.headers['x-patreon-signature'];
+        const hash = ComputeHash(secret, req.body);
+
+        console.log(signature, hash);
+        const verified = signature === hash;
+        if (verified)
+            return res.status(200).json({ success: true, message: 'Valid webhook signature!' });
+        else
+            res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
+    } catch (e) {
+        res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
     }
-}));
+});
 
 // Connect to MongoDB
 mongoose.connect(

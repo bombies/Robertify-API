@@ -49,8 +49,8 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
-            console.log(req.body['included'][1])
-            const discordID = req.body['included'][1]['discord_id'];
+            console.log(req.body['included'][1]['attributes']['discord_id'])
+            const discordID = req.body['included'][1]['attributes']['discord_id'];
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
                     console.log('Handling create event');

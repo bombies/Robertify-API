@@ -20,16 +20,6 @@ const rawBodySaver = function (req, res, buf, encoding) {
 app.use(bodyParser.json({ verify: rawBodySaver }));
 app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
 app.use(bodyParser.raw({ verify: rawBodySaver, type: '*/*' }));
-// app.use((req, res, next) => {
-//     console.log('Starting raw data parse');
-//     let data = '';
-//     req.on('data', chunk => { console.log('Updating raw data'); data += chunk });
-//     req.on('end', () => {
-//         console.log('Ending raw data update');
-//         req.rawBody = data;
-//         next();
-//     })
-// })
 app.use(cors());
 app.use(compression());
 app.use(helmet());
@@ -51,21 +41,34 @@ const authRoute = require('./routes/auth')
 const {computeHash} = require("./routes/auth");
 
 app.use('/', authRoute);
+
+// Patreon Webhook
 app.post('/premiumhook', async (req, res) => {
     try {
-        console.log(req.headers);
         const verified = computeHash(req);
-        console.log(verified);
         if (verified) {
-            console.log('Signature is valid!');
+            switch (req.headers['x-patreon-event']) {
+                case "members:pledge:create": {
+                    console.log('Handling create event');
+                    break;
+                }
+                case "members:pledge:update": {
+                    console.log('Handling update event');
+                    break;
+                }
+                case "members:pledge:delete": {
+                    console.log('Handling delete event');
+                    break;
+                }
+                default: {
+                    return res.status(401).json({ success: true, error: `This type of webhook trigger isn't handled: (${req.headers['x-patreon-event']})` })
+                }
+            }
             return res.status(200).json({ success: true, message: 'Valid webhook signature!' });
         }
-        else {
-            console.log('Invalid signature!')
-            return res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
-        }
+        else return res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
     } catch (e) {
-        console.log('Invalid webhook signature', e)
+        console.error('Invalid webhook signature', e);
         res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
     }
 });

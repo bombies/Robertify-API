@@ -48,7 +48,6 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
-            console.log(req.body);
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
                     console.log('Handling create event');

@@ -57,7 +57,7 @@ app.post('/premiumhook', async (req, res) => {
                     const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
                     const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
 
-                    console.log(startDate, endDate);
+                    console.log(startDate.toLocaleString('en-US'), endDate);
 
                     await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                         embeds: [

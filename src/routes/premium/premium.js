@@ -39,6 +39,11 @@ router.post('/', async(req, res) => {
     }
 })
 
+router.get('/', async (req, res) => {
+    const allDocs = await Premium.find();
+    return res.status(200).json(allDocs);
+})
+
 router.get('/:userId', async(req, res) => {
     const { userId } = req.params;
     const cachedInfo = await redis.get(HASH_NAME + userId);

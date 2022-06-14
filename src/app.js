@@ -82,7 +82,7 @@ app.post('/premiumhooktest', async (req, res) => {
                     user_name: 'bombies',
                     master_password: process.env.MASTER_PASSWORD
                 });
-                const accessKey = accessKeyRequest.data.token;
+                let accessKey = accessKeyRequest.data.token;
 
                 let tierID;
                 switch (tierName.toLowerCase()) {
@@ -143,14 +143,21 @@ app.post('/premiumhooktest', async (req, res) => {
                             message: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`
                         });
 
-                        setTimeout(() => {
+                        setTimeout(async () => {
+                            const authTokenReq = await axios.post(`${process.env.BASE_URL}/login`, {
+                                user_name: 'bombies',
+                                master_password: process.env.MASTER_PASSWORD
+                            });
+                            accessKey = authTokenReq.data.token;
+
                             axios.delete(`${process.env.BASE_URL}/premium/${discordID}`, {
                                 headers: {
                                     'auth-token': accessKey
                                 }
                             })
                                 .then(() => console.log(`Deleted premium info for ${discordID}`))
-                        }, 5000);
+                                .catch(() => console.error(`There was an error deleting premium information for ${discordID}`));
+                        }, endDate);
                     })
                     .catch(err => {
                         console.error('There was an error handling the request promise', err);
@@ -496,6 +503,32 @@ mongoose.connect(
     }
 );
 
-app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', () => {
+app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', async () => {
+    // Premium Removal Rescheduling
+    console.log('Rescheduling premium removals');
+    const authTokenReq = await axios.post(`${process.env.BASE_URL}/login`, {
+        user_name: 'bombies',
+        master_password: process.env.MASTER_PASSWORD
+    });
+    const accessKey = authTokenReq.data.token;
+    const allDocs = (await axios.get(`${process.env.BASE_URL}/premium`, {
+        headers: {
+            'auth-token': accessKey
+        }
+    })).data;
+
+    allDocs.forEach(doc => {
+        console.log(`Rescheduling the removal of ${doc.user_id}`);
+        setTimeout(async () => {
+            axios.delete(`${process.env.BASE_URL}/premium/${doc.user_id}`, {
+                headers: {
+                    'auth-token': accessKey
+                }
+            })
+                .then(() => console.log(`Deleted premium info for ${doc.user_id}`))
+                .catch(() => console.error(`There was an error deleting premium information for ${doc.user_id}`));
+        }, Number(doc.premium_expires));
+    })
+
     console.log('The API is now running!');
 });

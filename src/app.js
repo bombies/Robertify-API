@@ -40,7 +40,6 @@ app.use(Sentry.Handlers.tracingHandler());
 const authRoute = require('./routes/auth')
 const {computeHash} = require("./routes/auth");
 const axios = require("axios");
-const fs = require("fs");
 
 app.use('/', authRoute);
 
@@ -109,6 +108,10 @@ app.post('/premiumhook', async (req, res) => {
                             }
                             case "emerald": {
                                 tierID = 4;
+                                break;
+                            }
+                            case "test3": {
+                                tierID = 5;
                                 break;
                             }
                             default: {

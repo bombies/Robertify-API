@@ -81,16 +81,29 @@ app.post('/premiumhook', async (req, res) => {
                     const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
                     console.log(rewards);
 
-                    await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-                        embeds: [
-                            {
-                                title: 'New Premium Pledge',
-                                type: 'rich',
-                                description: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`,
-                                color: '16740864'
-                            }
-                        ]
-                    })
+                    if (discordID) {
+                        await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                            embeds: [
+                                {
+                                    title: 'New Premium Pledge',
+                                    type: 'rich',
+                                    description: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`,
+                                    color: '16740864'
+                                }
+                            ]
+                        })
+                    } else {
+                        await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                            embeds: [
+                                {
+                                    title: 'New Premium Pledge',
+                                    type: 'rich',
+                                    description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made a premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
+                                    color: '16740864'
+                                }
+                            ]
+                        })
+                    }
 
                     break;
                 }
@@ -122,30 +135,56 @@ app.post('/premiumhook', async (req, res) => {
                     const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
                     console.log(rewards);
 
-                    await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-                        embeds: [
-                            {
-                                title: 'Updated Premium Pledge',
-                                type: 'rich',
-                                description: `<@${discordID}> has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!`,
-                                color: '16740864'
-                            }
-                        ]
-                    })
+                    if (discordID) {
+                        await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                            embeds: [
+                                {
+                                    title: 'Updated Premium Pledge',
+                                    type: 'rich',
+                                    description: `<@${discordID}> has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!`,
+                                    color: '16740864'
+                                }
+                            ]
+                        })
+                    } else {
+                        await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                            embeds: [
+                                {
+                                    title: 'New Premium Pledge',
+                                    type: 'rich',
+                                    description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
+                                    color: '16740864'
+                                }
+                            ]
+                        })
+                    }
                     break;
                 }
                 case "members:pledge:delete": {
                     console.log('Handling delete event');
-                    await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-                        embeds: [
-                            {
-                                title: 'Deleted Premium Pledge',
-                                type: 'rich',
-                                description: `<@${discordID}> has removed their premium pledge!`,
-                                color: '16740864'
-                            }
-                        ]
-                    })
+                    if (discordID) {
+                        await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                            embeds: [
+                                {
+                                    title: 'Deleted Premium Pledge',
+                                    type: 'rich',
+                                    description: `<@${discordID}> has removed their premium pledge!`,
+                                    color: '16740864'
+                                }
+                            ]
+                        })
+                    } else {
+                        await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                            embeds: [
+                                {
+                                    title: 'Deleted Premium Pledge',
+                                    type: 'rich',
+                                    description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has removed their premium pledge!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
+                                    color: '16740864'
+                                }
+                            ]
+                        })
+                    }
                     break;
                 }
                 default: {

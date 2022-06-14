@@ -120,8 +120,8 @@ app.post('/premiumhooktest', async (req, res) => {
                     user_id: discordID,
                     premium_type: 0,
                     premium_tier: tierID,
-                    premium_started: startDate,
-                    premium_expires: endDate
+                    premium_started: startDate.toString(),
+                    premium_expires: endDate.toString()
                 }, {
                     headers: {
                         'auth-token': accessKey

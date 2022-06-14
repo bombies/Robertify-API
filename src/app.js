@@ -508,7 +508,7 @@ app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', async (
     })).data;
 
     for (const doc of allDocs) {
-        console.log(`Rescheduling the removal of ${doc.user_id}`);
+        console.log(`Rescheduling the removal of ${doc.user_id} (${doc.premium_expires})`);
         console.log(`Scheduling delete date at: ${new Date(doc.premium_expires)}`)
         if (doc.premium_expires - new Date().getTime() <= 0)
             await deletePremiumDoc(doc.user_id)

@@ -146,13 +146,7 @@ app.post('/premiumhooktest', async (req, res) => {
 
                         console.log(`Scheduling delete date at: ${new Date(endDate)}`)
                         scheduler.scheduleJob(new Date(endDate), async () => {
-                            const authTokenReq = await axios.post(`${process.env.BASE_URL}/login`, {
-                                user_name: 'bombies',
-                                master_password: process.env.MASTER_PASSWORD
-                            });
-                            accessKey = authTokenReq.data.token;
-
-                            deletePremiumDoc(discordID);
+                            await deletePremiumDoc(discordID);
                         });
                     })
                     .catch(err => {
@@ -513,18 +507,25 @@ app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', async (
         }
     })).data;
 
-    allDocs.forEach(doc => {
+    for (const doc of allDocs) {
         console.log(`Rescheduling the removal of ${doc.user_id}`);
+        console.log(`Scheduling delete date at: ${new Date(doc.premium_expires)}`)
         if (doc.premium_expires - new Date().getTime() <= 0)
-            deletePremiumDoc(doc.user_id)
+            await deletePremiumDoc(doc.user_id)
         else
             scheduler.scheduleJob(new Date(doc.premium_expires), () => deletePremiumDoc(doc.user_id))
-    });
+    }
 
     console.log('The API is now running!');
 });
 
-const deletePremiumDoc = (userId) => {
+const deletePremiumDoc = async (userId) => {
+    const authTokenReq = await axios.post(`${process.env.BASE_URL}/login`, {
+        user_name: 'bombies',
+        master_password: process.env.MASTER_PASSWORD
+    });
+    const accessKey = authTokenReq.data.token;
+
     axios.delete(`${process.env.BASE_URL}/premium/${userId}`, {
         headers: {
             'auth-token': accessKey

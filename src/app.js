@@ -144,6 +144,7 @@ app.post('/premiumhooktest', async (req, res) => {
                             message: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`
                         });
 
+                        console.log(`Scheduling delete date at: ${new Date(endDate)}`)
                         scheduler.scheduleJob(new Date(endDate), async () => {
                             const authTokenReq = await axios.post(`${process.env.BASE_URL}/login`, {
                                 user_name: 'bombies',
@@ -151,13 +152,7 @@ app.post('/premiumhooktest', async (req, res) => {
                             });
                             accessKey = authTokenReq.data.token;
 
-                            axios.delete(`${process.env.BASE_URL}/premium/${discordID}`, {
-                                headers: {
-                                    'auth-token': accessKey
-                                }
-                            })
-                                .then(() => console.log(`Deleted premium info for ${discordID}`))
-                                .catch(() => console.error(`There was an error deleting premium information for ${discordID}`));
+                            deletePremiumDoc(discordID);
                         });
                     })
                     .catch(err => {
@@ -520,16 +515,21 @@ app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', async (
 
     allDocs.forEach(doc => {
         console.log(`Rescheduling the removal of ${doc.user_id}`);
-        scheduler.scheduleJob(new Date(doc.premium_expires), () => {
-            axios.delete(`${process.env.BASE_URL}/premium/${doc.user_id}`, {
-                headers: {
-                    'auth-token': accessKey
-                }
-            })
-                .then(() => console.log(`Deleted premium info for ${doc.user_id}`))
-                .catch(() => console.error(`There was an error deleting premium information for ${doc.user_id}`));
-        })
-    })
+        if (doc.premium_expires - new Date().getTime() <= 0)
+            deletePremiumDoc(doc.user_id)
+        else
+            scheduler.scheduleJob(new Date(doc.premium_expires), () => deletePremiumDoc(doc.user_id))
+    });
 
     console.log('The API is now running!');
 });
+
+const deletePremiumDoc = (userId) => {
+    axios.delete(`${process.env.BASE_URL}/premium/${userId}`, {
+        headers: {
+            'auth-token': accessKey
+        }
+    })
+        .then(() => console.log(`Deleted premium info for ${userId}`))
+        .catch(() => console.error(`There was an error deleting premium information for ${userId}`));
+}

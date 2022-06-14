@@ -92,7 +92,7 @@ router.delete('/:userId', async (req, res) => {
         if (!existingDoc)
             return res.status(404).json({ success: false, error: 'There is no such premium user with the id: ' + userId})
 
-        Premium.deleteOne({ user_id: userId });
+        await Premium.deleteOne({ user_id: userId });
         return res.status(200).json({ success: true })
     } catch (ex) {
         return res.status(500).json({ success: false, error: ex })

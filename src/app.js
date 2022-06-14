@@ -165,7 +165,7 @@ app.post('/premiumhook', async (req, res) => {
                                 }
                             ]
                         })
-                        res.status(400).json({
+                        return res.status(400).json({
                             success: false,
                             error: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made a premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`
                         });
@@ -216,7 +216,7 @@ app.post('/premiumhook', async (req, res) => {
                         await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                             embeds: [
                                 {
-                                    title: 'New Premium Pledge',
+                                    title: 'Update Premium Pledge',
                                     type: 'rich',
                                     description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
                                     color: '16740864'

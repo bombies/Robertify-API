@@ -86,7 +86,7 @@ app.post('/premiumhook', async (req, res) => {
                             {
                                 title: 'New Premium Pledge',
                                 type: 'rich',
-                                description: `<@${discordID}> has made a premium pledge!`,
+                                description: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`,
                                 color: '16740864'
                             }
                         ]
@@ -96,12 +96,38 @@ app.post('/premiumhook', async (req, res) => {
                 }
                 case "members:pledge:update": {
                     console.log('Handling update event');
+                    const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
+                    const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
+
+                    if (!entitledTiers) {
+                        console.error('There was no tier data. The field doesn\'t seem to exist.');
+                        return res.status(400).json({
+                            success: false,
+                            error: 'Bad request. Missing currently entitled tiers field.'
+                        })
+                    }
+
+                    const entitledTiersData = entitledTiers['data'];
+                    if (!entitledTiersData) {
+                        console.error('There was no tier data.')
+                        return res.status(200).json({success: false, error: 'There was no tier data!'});
+                    }
+
+                    if (entitledTiersData.length === 0) {
+                        console.error('There was no tier data.')
+                        return res.status(200).json({success: false, error: 'There was no tier data!'});
+                    }
+
+                    const tierID = entitledTiersData[entitledTiersData.length - 1]['id'];
+                    const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
+                    console.log(rewards);
+
                     await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                         embeds: [
                             {
                                 title: 'Updated Premium Pledge',
                                 type: 'rich',
-                                description: `<@${discordID}> has made an update to their premium pledge!`,
+                                description: `<@${discordID}> has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!`,
                                 color: '16740864'
                             }
                         ]

@@ -8,6 +8,7 @@ const cors = require('cors');
 const compression = require('compression');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
+const scheduler = require('node-schedule');
 require('dotenv/config')
 
 // Middle wares
@@ -143,7 +144,7 @@ app.post('/premiumhooktest', async (req, res) => {
                             message: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`
                         });
 
-                        setTimeout(async () => {
+                        scheduler.scheduleJob(new Date(endDate), async () => {
                             const authTokenReq = await axios.post(`${process.env.BASE_URL}/login`, {
                                 user_name: 'bombies',
                                 master_password: process.env.MASTER_PASSWORD
@@ -157,7 +158,7 @@ app.post('/premiumhooktest', async (req, res) => {
                             })
                                 .then(() => console.log(`Deleted premium info for ${discordID}`))
                                 .catch(() => console.error(`There was an error deleting premium information for ${discordID}`));
-                        }, endDate);
+                        });
                     })
                     .catch(err => {
                         console.error('There was an error handling the request promise', err);
@@ -519,7 +520,7 @@ app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', async (
 
     allDocs.forEach(doc => {
         console.log(`Rescheduling the removal of ${doc.user_id}`);
-        setTimeout(async () => {
+        scheduler.scheduleJob(new Date(doc.premium_expires), () => {
             axios.delete(`${process.env.BASE_URL}/premium/${doc.user_id}`, {
                 headers: {
                     'auth-token': accessKey
@@ -527,7 +528,7 @@ app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', async (
             })
                 .then(() => console.log(`Deleted premium info for ${doc.user_id}`))
                 .catch(() => console.error(`There was an error deleting premium information for ${doc.user_id}`));
-        }, Number(doc.premium_expires));
+        })
     })
 
     console.log('The API is now running!');

@@ -78,6 +78,25 @@ router.patch('/', async(req, res) => {
     const savedDoc = existingDoc.save();
     redis.setex(HASH_NAME + userId, 3600, JSON.stringify(savedDoc._doc));
     return res.status(200).json({ success: true, data: savedDoc._doc })
+});
+
+router.delete('/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const cachedInfo = await redis.get(HASH_NAME + userId);
+
+    if (cachedInfo)
+        redis.del(HASH_NAME + userId);
+
+    try {
+        const existingDoc = await Premium.findOne({ user_id: userId });
+        if (!existingDoc)
+            return res.status(404).json({ success: false, error: 'There is no such premium user with the id: ' + userId})
+
+        Premium.deleteOne({ user_id: userId });
+        return res.status(200).json({ success: true })
+    } catch (ex) {
+        return res.status(500).json({ success: false, error: ex })
+    }
 })
 
 module.exports = router;

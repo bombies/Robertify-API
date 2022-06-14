@@ -142,6 +142,15 @@ app.post('/premiumhooktest', async (req, res) => {
                             success: true,
                             message: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`
                         });
+
+                        setTimeout(() => {
+                            axios.delete(`${process.env.BASE_URL}/premium/${discordID}`, {
+                                headers: {
+                                    'auth-token': accessKey
+                                }
+                            })
+                                .then(() => console.log(`Deleted premium info for ${discordID}`))
+                        }, 5000);
                     })
                     .catch(err => {
                         console.error('There was an error handling the request promise', err);

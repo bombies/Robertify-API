@@ -14,12 +14,7 @@ router.get('/', async (req, res) => {
     if (cachedInfo)
         return res.status(200).json(JSON.parse(cachedInfo));
 
-    const collection = Premium.find();
-    const guilds = [];
-
-    for (let document in collection)
-        guilds.push([...document.premium_servers]);
-    redis.set(HASH_NAME, JSON.stringify(guilds));
+    const guilds = setGuildCache();
     return res.status(200).json(guilds);
 })
 
@@ -35,6 +30,7 @@ router.post('/:userId', async (req, res) => {
         return res.status(404).json({ success: false, error: 'There is no such premium user with the id: ' + userId});
     userDoc.premium_servers = body;
     await userDoc.save();
+    await setGuildCache();
     return res.status(200).json({ success: true });
 })
 
@@ -50,6 +46,7 @@ router.patch('/:userId', async (req, res) => {
         return res.status(404).json({ success: false, error: 'There is no such premium user with the id: ' + userId});
     userDoc.premium_servers = [...userDoc.premium_servers, ...body];
     await userDoc.save();
+    await setGuildCache();
     return res.status(200).json({ success: true });
 })
 
@@ -60,5 +57,24 @@ router.get('/:userId', async (req, res) => {
         return res.status(404).json({ success: false, error: 'There is no such premium user with the id: ' + userId});
     return res.status(200).json(userDoc.premium_servers);
 })
+
+const setGuildCache = async () => {
+    const collection = await Premium.find();
+    const guilds = [];
+
+    collection.forEach(doc => guilds.push(...doc.premium_servers));
+
+    redis.set(HASH_NAME, JSON.stringify(guilds));
+    return guilds;
+}
+
+const updateGuildCache = async (guilds) => {
+    const cachedInfo = await redis.get(HASH_NAME);
+    if (cachedInfo)
+        return;
+    const cachedInfoObj = JSON.parse(cachedInfo);
+    cachedInfoObj.push(...guilds);
+    await redis.set(HASH_NAME, JSON.stringify(cachedInfoObj))
+}
 
 module.exports = router;

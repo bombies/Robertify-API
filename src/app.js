@@ -58,8 +58,6 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
-            fs.writeFileSync(`./${new Date().getTime()}.json`, JSON.stringify(req.body, null, 4));
-
             const discordID = req.body['included'][1]['attributes']['social_connections']['discord'];
             const entitledTiers = req.body['data']['relationships']['currently_entitled_tiers'];
             await handlePremiumEvents(req, res, discordID, entitledTiers);

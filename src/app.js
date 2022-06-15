@@ -44,222 +44,249 @@ const axios = require("axios");
 
 app.use('/', authRoute);
 
-// app.post('/premiumhooktest', async (req, res) => {
-//     const discordID = req.body['included'][1]['attributes']['social_connections']['discord'];
-//     const entitledTiers = req.body['data']['relationships']['currently_entitled_tiers'];
-//
-//     switch (req.headers['x-patreon-event']) {
-//         case "members:pledge:create": {
-//             console.log('Handling create event');
-//             const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
-//             const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
-//
-//             if (!entitledTiers) {
-//                 console.error('There was no tier data. The field doesn\'t seem to exist.');
-//                 return res.status(400).json({
-//                     success: false,
-//                     error: 'Bad request. Missing currently entitled tiers field.'
-//                 })
-//             }
-//
-//             const entitledTiersData = entitledTiers['data'];
-//             if (!entitledTiersData) {
-//                 console.error('There was no tier data.')
-//                 return res.status(200).json({success: false, error: 'There was no tier data!'});
-//             }
-//
-//             if (entitledTiersData.length === 0) {
-//                 console.error('There was no tier data.')
-//                 return res.status(200).json({success: false, error: 'There was no tier data!'});
-//             }
-//
-//             const tierID = entitledTiersData[0]['id'];
-//             const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
-//             const tierName = rewards['attributes']['title'];
-//             console.log(rewards);
-//
-//             if (discordID) {
-//                 const accessKeyRequest = await axios.post(`${process.env.BASE_URL}/login`, {
-//                     user_name: 'bombies',
-//                     master_password: process.env.MASTER_PASSWORD
-//                 });
-//                 let accessKey = accessKeyRequest.data.token;
-//
-//                 let tierID;
-//                 switch (tierName.toLowerCase()) {
-//                     case "bronze": {
-//                         tierID = 0;
-//                         break;
-//                     }
-//                     case "silver": {
-//                         tierID = 1;
-//                         break;
-//                     }
-//                     case "gold": {
-//                         tierID = 2;
-//                         break;
-//                     }
-//                     case "diamond": {
-//                         tierID = 3;
-//                         break;
-//                     }
-//                     case "emerald": {
-//                         tierID = 4;
-//                         break;
-//                     }
-//                     case "test": {
-//                         tierID = 5;
-//                         break;
-//                     }
-//                     default: {
-//                         console.error(`${tierName} is an invalid tier name. I couldn't assign a tier ID!`);
-//                         return res.status(500).json({ success: false, error: `${tierName} is an invalid tier name. I couldn't assign a tier ID!`});
-//                     }
-//                 }
-//
-//                 axios.post(`${process.env.BASE_URL}/premium`, {
-//                     user_id: discordID,
-//                     premium_type: 0,
-//                     premium_tier: tierID,
-//                     premium_started: startDate.toString(),
-//                     premium_expires: endDate.toString()
-//                 }, {
-//                     headers: {
-//                         'auth-token': accessKey
-//                     }
-//                 })
-//                     .then(() => {
-//                         axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-//                             embeds: [
-//                                 {
-//                                     title: 'New Premium Pledge',
-//                                     type: 'rich',
-//                                     description: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`,
-//                                     color: '16740864'
-//                                 }
-//                             ]
-//                         })
-//                         res.status(200).json({
-//                             success: true,
-//                             message: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`
-//                         });
-//
-//                         console.log(`Scheduling delete date at: ${new Date(endDate)}`)
-//                         scheduler.scheduleJob(new Date(endDate), async () => {
-//                             await deletePremiumDoc(discordID);
-//                         });
-//                     })
-//                     .catch(err => {
-//                         console.error('There was an error handling the request promise', err);
-//                         res.status(500).json({
-//                             success: false,
-//                             error: err
-//                         });
-//                     });
-//             } else {
-//                 await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-//                     embeds: [
-//                         {
-//                             title: 'New Premium Pledge',
-//                             type: 'rich',
-//                             description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made a premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
-//                             color: '16740864'
-//                         }
-//                     ]
-//                 })
-//                 return res.status(400).json({
-//                     success: false,
-//                     error: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made a premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`
-//                 });
-//             }
-//
-//             break;
-//         }
-//         case "members:pledge:update": {
-//             console.log('Handling update event');
-//             const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
-//             const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
-//
-//             if (!entitledTiers) {
-//                 console.error('There was no tier data. The field doesn\'t seem to exist.');
-//                 return res.status(400).json({
-//                     success: false,
-//                     error: 'Bad request. Missing currently entitled tiers field.'
-//                 })
-//             }
-//
-//             const entitledTiersData = entitledTiers['data'];
-//             if (!entitledTiersData) {
-//                 console.error('There was no tier data.')
-//                 return res.status(200).json({success: false, error: 'There was no tier data!'});
-//             }
-//
-//             if (entitledTiersData.length === 0) {
-//                 console.error('There was no tier data.')
-//                 return res.status(200).json({success: false, error: 'There was no tier data!'});
-//             }
-//
-//             const tierID = entitledTiersData[entitledTiersData.length - 1]['id'];
-//             const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
-//             console.log(rewards);
-//
-//             if (discordID) {
-//                 await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-//                     embeds: [
-//                         {
-//                             title: 'Updated Premium Pledge',
-//                             type: 'rich',
-//                             description: `<@${discordID}> has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!`,
-//                             color: '16740864'
-//                         }
-//                     ]
-//                 })
-//             } else {
-//                 await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-//                     embeds: [
-//                         {
-//                             title: 'Update Premium Pledge',
-//                             type: 'rich',
-//                             description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
-//                             color: '16740864'
-//                         }
-//                     ]
-//                 })
-//             }
-//             break;
-//         }
-//         case "members:pledge:delete": {
-//             console.log('Handling delete event');
-//             if (discordID) {
-//                 await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-//                     embeds: [
-//                         {
-//                             title: 'Deleted Premium Pledge',
-//                             type: 'rich',
-//                             description: `<@${discordID}> has removed their premium pledge!`,
-//                             color: '16740864'
-//                         }
-//                     ]
-//                 })
-//             } else {
-//                 await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-//                     embeds: [
-//                         {
-//                             title: 'Deleted Premium Pledge',
-//                             type: 'rich',
-//                             description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has removed their premium pledge!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
-//                             color: '16740864'
-//                         }
-//                     ]
-//                 })
-//             }
-//             break;
-//         }
-//         default: {
-//             return res.status(401).json({ success: true, error: `This type of webhook trigger isn't handled: (${req.headers['x-patreon-event']})` })
-//         }
-//     }
-// });
+const premiumRemovalJobs = new Map();
+
+app.post('/premiumhooktest', async (req, res) => {
+    const discordID = req.body['included'][1]['attributes']['social_connections']['discord'];
+    const entitledTiers = req.body['data']['relationships']['currently_entitled_tiers'];
+
+    switch (req.headers['x-patreon-event']) {
+        case "members:pledge:create": {
+            const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
+            const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
+
+            if (!entitledTiers) {
+                console.error('There was no tier data. The field doesn\'t seem to exist.');
+                return res.status(400).json({
+                    success: false,
+                    error: 'Bad request. Missing currently entitled tiers field.'
+                })
+            }
+
+            const entitledTiersData = entitledTiers['data'];
+            if (!entitledTiersData) {
+                console.error('There was no tier data.')
+                return res.status(200).json({success: false, error: 'There was no tier data!'});
+            }
+
+            if (entitledTiersData.length === 0) {
+                console.error('There was no tier data.')
+                return res.status(200).json({success: false, error: 'There was no tier data!'});
+            }
+
+            const tierID = entitledTiersData[0]['id'];
+            const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
+            const tierName = rewards['attributes']['title'];
+
+            if (discordID) {
+                const accessKeyRequest = await axios.post(`${process.env.BASE_URL}/login`, {
+                    user_name: 'bombies',
+                    master_password: process.env.MASTER_PASSWORD
+                });
+                let accessKey = accessKeyRequest.data.token;
+                let tierID = getTierID(tierName);
+
+                if (tierID === -1)
+                    return res.status(500).json({ success: false, error: `${tierName} is an invalid tier name. I couldn't assign a tier ID!`});
+
+                axios.post(`${process.env.BASE_URL}/premium`, {
+                    user_id: discordID,
+                    premium_type: 0,
+                    premium_tier: tierID,
+                    premium_started: startDate.toString(),
+                    premium_expires: endDate.toString()
+                }, {
+                    headers: {
+                        'auth-token': accessKey
+                    }
+                })
+                    .then(() => {
+                        axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                            embeds: [
+                                {
+                                    title: 'New Premium Pledge',
+                                    type: 'rich',
+                                    description: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`,
+                                    color: '16740864'
+                                }
+                            ]
+                        })
+                        res.status(200).json({
+                            success: true,
+                            message: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`
+                        });
+
+                        console.log(`Scheduling delete date at: ${new Date(endDate)}`)
+                        const removeJob = scheduler.scheduleJob(new Date(endDate), async () => {
+                            await deletePremiumDoc(discordID);
+                        });
+                        premiumRemovalJobs.set(discordID, removeJob);
+                    })
+                    .catch(err => {
+                        console.error('There was an error handling the request promise', err);
+                        res.status(500).json({
+                            success: false,
+                            error: err
+                        });
+                    });
+            } else {
+                await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                    embeds: [
+                        {
+                            title: 'New Premium Pledge',
+                            type: 'rich',
+                            description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made a premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
+                            color: '16740864'
+                        }
+                    ]
+                })
+                return res.status(400).json({
+                    success: false,
+                    error: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made a premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`
+                });
+            }
+
+            break;
+        }
+        case "members:pledge:update": {
+            const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
+            const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
+
+            if (!entitledTiers) {
+                console.error('There was no tier data. The field doesn\'t seem to exist.');
+                return res.status(400).json({
+                    success: false,
+                    error: 'Bad request. Missing currently entitled tiers field.'
+                })
+            }
+
+            const entitledTiersData = entitledTiers['data'];
+            if (!entitledTiersData) {
+                console.error('There was no tier data.')
+                return res.status(200).json({success: false, error: 'There was no tier data!'});
+            }
+
+            if (entitledTiersData.length === 0) {
+                console.error('There was no tier data.')
+                return res.status(200).json({success: false, error: 'There was no tier data!'});
+            }
+
+            const tierID = entitledTiersData[entitledTiersData.length - 1]['id'];
+            const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
+            console.log(rewards);
+
+            if (discordID) {
+                const accessKeyRequest = await axios.post(`${process.env.BASE_URL}/login`, {
+                    user_name: 'bombies',
+                    master_password: process.env.MASTER_PASSWORD
+                });
+                let accessKey = accessKeyRequest.data.token;
+                let tierID = getTierID(tierName);
+
+                if (tierID === -1)
+                    return res.status(500).json({ success: false, error: `${tierName} is an invalid tier name. I couldn't assign a tier ID!`});
+
+                axios.post(`${process.env.BASE_URL}/premium`, {
+                    user_id: discordID,
+                    premium_type: 0,
+                    premium_tier: tierID,
+                    premium_started: startDate.toString(),
+                    premium_expires: endDate.toString()
+                }, {
+                    headers: {
+                        'auth-token': accessKey
+                    }
+                })
+                    .then(() => {
+                        axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                            embeds: [
+                                {
+                                    title: 'Updated Premium Pledge',
+                                    type: 'rich',
+                                    description: `<@${discordID}> has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!`,
+                                    color: '16740864'
+                                }
+                            ]
+                        });
+
+                        res.status(200).json({
+                            success: true,
+                            message: `<@${discordID}> has updated their premium pledge to \`${rewards['attributes']['title']}\`!`
+                        });
+
+                        const oldJob = premiumRemovalJobs.get(discordID);
+                        if (oldJob)
+                            oldJob.cancel();
+                        premiumRemovalJobs.delete(discordID);
+
+                        const removeJob = scheduler.scheduleJob(new Date(endDate), async () => {
+                            await deletePremiumDoc(discordID);
+                        });
+                        premiumRemovalJobs.set(discordID, removeJob);
+                    })
+            } else {
+                await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                    embeds: [
+                        {
+                            title: 'Update Premium Pledge',
+                            type: 'rich',
+                            description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
+                            color: '16740864'
+                        }
+                    ]
+                })
+            }
+            break;
+        }
+        case "members:pledge:delete": {
+            if (discordID) {
+                const accessKeyRequest = await axios.post(`${process.env.BASE_URL}/login`, {
+                    user_name: 'bombies',
+                    master_password: process.env.MASTER_PASSWORD
+                });
+                let accessKey = accessKeyRequest.data.token;
+
+                axios.delete(`${process.env.BASE_URL}/premium/${discordID}`, {
+                    headers: {
+                        'auth-token': accessKey
+                    }
+                }).
+                then(() => {
+                    const removeJob = premiumRemovalJobs.get(discordID);
+                    if (removeJob)
+                        removeJob.cancel();
+                    premiumRemovalJobs.delete(discordID);
+
+                    axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                        embeds: [
+                            {
+                                title: 'Deleted Premium Pledge',
+                                type: 'rich',
+                                description: `<@${discordID}> has removed their premium pledge!`,
+                                color: '16740864'
+                            }
+                        ]
+                    });
+                })
+            } else {
+                await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                    embeds: [
+                        {
+                            title: 'Deleted Premium Pledge',
+                            type: 'rich',
+                            description: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has removed their premium pledge!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`,
+                            color: '16740864'
+                        }
+                    ]
+                })
+            }
+            break;
+        }
+        default: {
+            return res.status(401).json({ success: true, error: `This type of webhook trigger isn't handled: (${req.headers['x-patreon-event']})` })
+        }
+    }
+});
 
 // Patreon Webhook
 app.post('/premiumhook', async (req, res) => {
@@ -271,7 +298,6 @@ app.post('/premiumhook', async (req, res) => {
 
             switch (req.headers['x-patreon-event']) {
                 case "members:pledge:create": {
-                    console.log('Handling create event');
                     const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
                     const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
 
@@ -297,7 +323,6 @@ app.post('/premiumhook', async (req, res) => {
                     const tierID = entitledTiersData[0]['id'];
                     const rewards = req.body['included'].filter(obj => obj['id'] === tierID)[0];
                     const tierName = rewards['attributes']['title'];
-                    console.log(rewards);
 
                     if (discordID) {
                         const accessKeyRequest = await axios.post(`${process.env.BASE_URL}/login`, {
@@ -305,38 +330,10 @@ app.post('/premiumhook', async (req, res) => {
                             master_password: process.env.MASTER_PASSWORD
                         });
                         let accessKey = accessKeyRequest.data.token;
+                        let tierID = getTierID(tierName);
 
-                        let tierID;
-                        switch (tierName.toLowerCase()) {
-                            case "bronze": {
-                                tierID = 0;
-                                break;
-                            }
-                            case "silver": {
-                                tierID = 1;
-                                break;
-                            }
-                            case "gold": {
-                                tierID = 2;
-                                break;
-                            }
-                            case "diamond": {
-                                tierID = 3;
-                                break;
-                            }
-                            case "emerald": {
-                                tierID = 4;
-                                break;
-                            }
-                            case "test": {
-                                tierID = 5;
-                                break;
-                            }
-                            default: {
-                                console.error(`${tierName} is an invalid tier name. I couldn't assign a tier ID!`);
-                                return res.status(500).json({ success: false, error: `${tierName} is an invalid tier name. I couldn't assign a tier ID!`});
-                            }
-                        }
+                        if (tierID === -1)
+                            return res.status(500).json({ success: false, error: `${tierName} is an invalid tier name. I couldn't assign a tier ID!`});
 
                         axios.post(`${process.env.BASE_URL}/premium`, {
                             user_id: discordID,
@@ -365,9 +362,11 @@ app.post('/premiumhook', async (req, res) => {
                                     message: `<@${discordID}> has made a premium pledge to \`${rewards['attributes']['title']}\`!`
                                 });
 
-                                scheduler.scheduleJob(new Date(endDate), async () => {
+                                console.log(`Scheduling delete date at: ${new Date(endDate)}`)
+                                const removeJob = scheduler.scheduleJob(new Date(endDate), async () => {
                                     await deletePremiumDoc(discordID);
                                 });
+                                premiumRemovalJobs.set(discordID, removeJob);
                             })
                             .catch(err => {
                                 console.error('There was an error handling the request promise', err);
@@ -396,7 +395,6 @@ app.post('/premiumhook', async (req, res) => {
                     break;
                 }
                 case "members:pledge:update": {
-                    console.log('Handling update event');
                     const startDate = Date.parse(req.body['data']['attributes']['pledge_relationship_start']);
                     const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
 
@@ -424,16 +422,54 @@ app.post('/premiumhook', async (req, res) => {
                     console.log(rewards);
 
                     if (discordID) {
-                        await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-                            embeds: [
-                                {
-                                    title: 'Updated Premium Pledge',
-                                    type: 'rich',
-                                    description: `<@${discordID}> has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!`,
-                                    color: '16740864'
-                                }
-                            ]
+                        const accessKeyRequest = await axios.post(`${process.env.BASE_URL}/login`, {
+                            user_name: 'bombies',
+                            master_password: process.env.MASTER_PASSWORD
+                        });
+                        let accessKey = accessKeyRequest.data.token;
+                        let tierID = getTierID(tierName);
+
+                        if (tierID === -1)
+                            return res.status(500).json({ success: false, error: `${tierName} is an invalid tier name. I couldn't assign a tier ID!`});
+
+                        axios.post(`${process.env.BASE_URL}/premium`, {
+                            user_id: discordID,
+                            premium_type: 0,
+                            premium_tier: tierID,
+                            premium_started: startDate.toString(),
+                            premium_expires: endDate.toString()
+                        }, {
+                            headers: {
+                                'auth-token': accessKey
+                            }
                         })
+                            .then(() => {
+                                axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                                    embeds: [
+                                        {
+                                            title: 'Updated Premium Pledge',
+                                            type: 'rich',
+                                            description: `<@${discordID}> has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!`,
+                                            color: '16740864'
+                                        }
+                                    ]
+                                });
+
+                                res.status(200).json({
+                                    success: true,
+                                    message: `<@${discordID}> has updated their premium pledge to \`${rewards['attributes']['title']}\`!`
+                                });
+
+                                const oldJob = premiumRemovalJobs.get(discordID);
+                                if (oldJob)
+                                    oldJob.cancel();
+                                premiumRemovalJobs.delete(discordID);
+
+                                const removeJob = scheduler.scheduleJob(new Date(endDate), async () => {
+                                    await deletePremiumDoc(discordID);
+                                });
+                                premiumRemovalJobs.set(discordID, removeJob);
+                            })
                     } else {
                         await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                             embeds: [
@@ -449,17 +485,34 @@ app.post('/premiumhook', async (req, res) => {
                     break;
                 }
                 case "members:pledge:delete": {
-                    console.log('Handling delete event');
                     if (discordID) {
-                        await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
-                            embeds: [
-                                {
-                                    title: 'Deleted Premium Pledge',
-                                    type: 'rich',
-                                    description: `<@${discordID}> has removed their premium pledge!`,
-                                    color: '16740864'
-                                }
-                            ]
+                        const accessKeyRequest = await axios.post(`${process.env.BASE_URL}/login`, {
+                            user_name: 'bombies',
+                            master_password: process.env.MASTER_PASSWORD
+                        });
+                        let accessKey = accessKeyRequest.data.token;
+
+                        axios.delete(`${process.env.BASE_URL}/premium/${discordID}`, {
+                            headers: {
+                                'auth-token': accessKey
+                            }
+                        }).
+                        then(() => {
+                            const removeJob = premiumRemovalJobs.get(discordID);
+                            if (removeJob)
+                                removeJob.cancel();
+                            premiumRemovalJobs.delete(discordID);
+
+                            axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                                embeds: [
+                                    {
+                                        title: 'Deleted Premium Pledge',
+                                        type: 'rich',
+                                        description: `<@${discordID}> has removed their premium pledge!`,
+                                        color: '16740864'
+                                    }
+                                ]
+                            });
                         })
                     } else {
                         await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
@@ -513,9 +566,11 @@ app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', async (
 
     for (const doc of allDocs) {
         if (doc.premium_expires - new Date().getTime() <= 0)
-            await deletePremiumDoc(doc.user_id)
-        else
-            scheduler.scheduleJob(new Date(Number(doc.premium_expires)), () => deletePremiumDoc(doc.user_id))
+            await deletePremiumDoc(doc.user_id);
+        else {
+            const removeJob = scheduler.scheduleJob(new Date(Number(doc.premium_expires)), () => deletePremiumDoc(doc.user_id));
+            premiumRemovalJobs.set(doc.user_id, removeJob);
+        }
     }
 
     console.log('The API is now running!');
@@ -535,4 +590,32 @@ const deletePremiumDoc = async (userId) => {
     })
         .then(() => console.log(`Deleted premium info for ${userId}`))
         .catch(() => console.error(`There was an error deleting premium information for ${userId}`));
+}
+
+const getTierID = (tierName) => {
+    switch (tierName.toLowerCase()) {
+        case "bronze": {
+            return 0;
+        }
+        case "silver": {
+            return 1;
+        }
+        case "gold": {
+            return 2;
+        }
+        case "diamond": {
+            return 3;
+            break;
+        }
+        case "emerald": {
+            return 4;
+        }
+        case "test": {
+            return 5;
+        }
+        default: {
+            console.error(`${tierName} is an invalid tier name. I couldn't assign a tier ID!`);
+            return -1;
+        }
+    }
 }

@@ -81,9 +81,9 @@ router.patch('/', async(req, res) => {
     existingDoc.premium_servers = body.premium_servers;
     existingDoc.premium_started = body.premium_started;
     existingDoc.premium_expires = body.premium_expires;
-    const savedDoc = existingDoc.save();
-    redis.setex(HASH_NAME + userId, 3600, JSON.stringify(savedDoc._doc));
-    return res.status(200).json({ success: true, data: savedDoc._doc })
+    await existingDoc.save();
+    redis.setex(HASH_NAME + userId, 3600, JSON.stringify(existingDoc._doc));
+    return res.status(200).json({ success: true, data: existingDoc })
 });
 
 router.delete('/:userId', async (req, res) => {

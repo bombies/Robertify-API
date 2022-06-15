@@ -299,24 +299,21 @@ const handlePremiumEvents = async (req, res, discordID, entitledTiers) => {
         }
         case "members:pledge:delete": {
             if (discordID) {
+                const endDate = Date.parse(req.body['data']['attributes']['next_charge_date']);
                 const accessKeyRequest = await axios.post(`${process.env.BASE_URL}/login`, {
                     user_name: 'bombies',
                     master_password: process.env.MASTER_PASSWORD
                 });
                 let accessKey = accessKeyRequest.data.token;
 
-                axios.delete(`${process.env.BASE_URL}/premium/${discordID}`, {
-                    headers: {
-                        'auth-token': accessKey
-                    }
-                }).
-                then(() => {
-                    const removeJob = premiumRemovalJobs.get(discordID);
-                    if (removeJob)
-                        removeJob.cancel();
-                    premiumRemovalJobs.delete(discordID);
+                const oldJob = premiumRemovalJobs.get(discordID);
+                if (oldJob)
+                    oldJob.cancel();
+                premiumRemovalJobs.delete(discordID);
 
-                    axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
+                const removeJob = scheduler.scheduleJob(new Date(endDate), async () => {
+                    await deletePremiumDoc(discordID);
+                    await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                         embeds: [
                             {
                                 title: 'Deleted Premium Pledge',
@@ -326,10 +323,9 @@ const handlePremiumEvents = async (req, res, discordID, entitledTiers) => {
                             }
                         ]
                     });
-
-                    return res.status(200).json({ success: true });
-                })
-                    .catch(err => res.status(err.status || 400).json({ success: false, error: err }));
+                });
+                premiumRemovalJobs.set(discordID, removeJob);
+                return res.status(200).json({ success: true });
             } else {
                 await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                     embeds: [

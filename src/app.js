@@ -60,12 +60,11 @@ app.post('/premiumhook', async (req, res) => {
             const discordID = req.body['included'][1]['attributes']['social_connections']['discord'];
             const entitledTiers = req.body['data']['relationships']['currently_entitled_tiers'];
             await handlePremiumEvents(req, res, discordID, entitledTiers);
-            return res.status(200).json({ success: true, message: 'Valid webhook signature!' });
         }
         else return res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
     } catch (e) {
         console.error('Invalid webhook signature', e);
-        res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
+        return res.status(401).json({ success: false, error: 'Invalid webhook signature!' });
     }
 });
 
@@ -291,7 +290,9 @@ const handlePremiumEvents = async (req, res, discordID, entitledTiers) => {
                             color: '16740864'
                         }
                     ]
-                })
+                });
+
+                return res.status(400).json({ success: false, error: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has made an update to their premium pledge to \`${rewards['attributes']['title']}\`!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`})
             }
             break;
         }
@@ -338,7 +339,9 @@ const handlePremiumEvents = async (req, res, discordID, entitledTiers) => {
                             color: '16740864'
                         }
                     ]
-                })
+                });
+
+                return res.status(400).json({ success: false, error: `**${req.body['data']['attributes']['full_name']}** (${req.body['data']['attributes']['email']}) has removed their premium pledge!\nThey don't have a Discord account linked to their account, however, so I wasn't able to update their information in the database.`});
             }
             break;
         }

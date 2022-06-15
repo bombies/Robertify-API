@@ -146,7 +146,7 @@ const handlePremiumEvents = async (req, res, discordID, entitledTiers) => {
 
                 axios.post(`${process.env.BASE_URL}/premium`, {
                     user_id: discordID,
-                    user_email: req.body['data']['attributes']['full_name'],
+                    user_email: req.body['data']['attributes']['email'],
                     premium_type: 0,
                     premium_tier: tierID,
                     premium_started: startDate.toString(),
@@ -244,6 +244,7 @@ const handlePremiumEvents = async (req, res, discordID, entitledTiers) => {
 
                 axios.post(`${process.env.BASE_URL}/premium`, {
                     user_id: discordID,
+                    user_email: req.body['data']['attributes']['email'],
                     premium_type: 0,
                     premium_tier: tierID,
                     premium_started: startDate.toString(),

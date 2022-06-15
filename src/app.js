@@ -9,6 +9,7 @@ const compression = require('compression');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const scheduler = require('node-schedule');
+const fs = require('fs');
 require('dotenv/config')
 
 // Middle wares
@@ -57,6 +58,8 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
+            fs.writeFileSync(`./${new Date().getTime()}.json`, req.body);
+
             const discordID = req.body['included'][1]['attributes']['social_connections']['discord'];
             const entitledTiers = req.body['data']['relationships']['currently_entitled_tiers'];
             await handlePremiumEvents(req, res, discordID, entitledTiers);

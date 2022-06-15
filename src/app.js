@@ -48,7 +48,7 @@ app.use('/', authRoute);
 const premiumRemovalJobs = new Map();
 
 app.post('/premiumhooktest', async (req, res) => {
-    const discordID = req.body['included'][1]['attributes']['social_connections']['discord'];
+    const discordID = req.body['included'][1]['attributes']['social_connections']['discord']['user_id'];
     const entitledTiers = req.body['data']['relationships']['currently_entitled_tiers'];
     await handlePremiumEvents(req, res, discordID, entitledTiers);
 });
@@ -58,7 +58,7 @@ app.post('/premiumhook', async (req, res) => {
     try {
         const verified = computeHash(req);
         if (verified) {
-            const discordID = req.body['included'][1]['attributes']['social_connections']['discord'];
+            const discordID = req.body['included'][1]['attributes']['social_connections']['discord']['user_id'];
             const entitledTiers = req.body['data']['relationships']['currently_entitled_tiers'];
             await handlePremiumEvents(req, res, discordID, entitledTiers);
         }

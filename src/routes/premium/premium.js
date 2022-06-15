@@ -4,6 +4,9 @@ const Joi = require('@hapi/joi');
 const {redis} = require("../../utils/RedisClient");
 
 const HASH_NAME = 'ROBERTIFY_PREMIUM#';
+const premiumGuildsRoute = require('./guilds');
+
+router.use('/guilds', premiumGuildsRoute);
 
 const postBodyValidate = (body) => {
     const validate = Joi.object({
@@ -33,7 +36,7 @@ router.post('/', async(req, res) => {
 
         const doc = new Premium(body);
         const savedDoc = await doc.save();
-        redis.setex(HASH_NAME + body.user_id, 3600, JSON.stringify(savedDoc._doc))
+        await redis.setex(HASH_NAME + body.user_id, 3600, JSON.stringify(savedDoc._doc))
         return res.status(200).json({ success: true, data: savedDoc })
     } catch (ex) {
         return res.status(500).json({ success: false, error: ex })
@@ -58,7 +61,7 @@ router.get('/:userId', async(req, res) => {
         if (!existingDoc)
             return res.status(404).json({ success: false, error: 'There is no such premium user with the id: ' + userId})
 
-        redis.setex(HASH_NAME + userId, 3600, JSON.stringify(existingDoc._doc));
+        await redis.setex(HASH_NAME + userId, 3600, JSON.stringify(existingDoc._doc));
         return res.status(200).json({ success: true, data: existingDoc })
     } catch (ex) {
         return res.status(500).json({ success: false, error: ex })
@@ -82,7 +85,7 @@ router.patch('/', async(req, res) => {
     existingDoc.premium_started = body.premium_started;
     existingDoc.premium_expires = body.premium_expires;
     await existingDoc.save();
-    redis.setex(HASH_NAME + userId, 3600, JSON.stringify(existingDoc._doc));
+    await redis.setex(HASH_NAME + userId, 3600, JSON.stringify(existingDoc._doc));
     return res.status(200).json({ success: true, data: existingDoc })
 });
 

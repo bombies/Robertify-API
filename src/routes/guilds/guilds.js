@@ -104,9 +104,11 @@ router.patch('/:guild_id', async (req, res) => {
 
     if (!guild)
             return res.status(404).send({ message: `There was no guild found with the ID ${req.params.guild_id}`});
-    
+
+    let permissionsParsed;
+    let restrictedChannelsParsed;
     try {
-        const { 
+        const {
             toggles, eight_ball, theme,
             log_channel, permissions, restricted_channels,
             twenty_four_seven_mode, autoplay
@@ -120,7 +122,7 @@ router.patch('/:guild_id', async (req, res) => {
                 permissionsParsed[key] = permissions[key];
                 continue;
             }
-            
+
             permissionsParsed[key] = permissions[key].map(val => Long.fromString(val, 10));
         }
 
@@ -129,7 +131,7 @@ router.patch('/:guild_id', async (req, res) => {
                 permissionsParsed[key] = restricted_channels[key];
                 continue;
             }
-    
+
             restrictedChannelsParsed[key] = restricted_channels[key].map(val => Long.fromString(val));
         }
 
@@ -170,7 +172,7 @@ router.patch('/:guild_id', async (req, res) => {
         res.status(200).json(newGuild);
     } catch (ex) {
         console.log(ex);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({error: 'Internal server error'});
     }
 })
 

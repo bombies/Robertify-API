@@ -391,6 +391,9 @@ const getTierID = (tierName) => {
         case "test": {
             return 5;
         }
+        case "test3": {
+            return 6;
+        }
         default: {
             console.error(`${tierName} is an invalid tier name. I couldn't assign a tier ID!`);
             return -1;

@@ -268,7 +268,9 @@ app.post('/premiumhooktest', async (req, res) => {
                             }
                         ]
                     });
+                    return res.status(200).json({ success: true });
                 })
+                    .catch(err => console.error({ success: false, error: err }));
             } else {
                 await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                     embeds: [
@@ -515,7 +517,10 @@ app.post('/premiumhook', async (req, res) => {
                                     }
                                 ]
                             });
+
+                            return res.status(200).json({ success: true });
                         })
+                            .catch(err => console.error({ success: false, error: err }));
                     } else {
                         await axios.post(`https://discord.com/api/v10/webhooks/${process.env.DISCORD_WEBHOOK_ID}/${process.env.DISCORD_WEBHOOK_SECRET}`, {
                             embeds: [

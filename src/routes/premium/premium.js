@@ -8,6 +8,7 @@ const HASH_NAME = 'ROBERTIFY_PREMIUM#';
 const postBodyValidate = (body) => {
     const validate = Joi.object({
         user_id: Joi.string().required(),
+        user_email: Joi.string().email().required(),
         premium_type: Joi.number().required(),
         premium_tier: Joi.number().required(),
         premium_servers: Joi.array().items(Joi.string()),

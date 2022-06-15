@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const schema = mongoose.Schema({
     user_id: String,
+    user_email: String,
     premium_type: Number,
     premium_tier: Number,
     premium_servers: Array,

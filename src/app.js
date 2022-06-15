@@ -91,6 +91,7 @@ app.post('/premiumhooktest', async (req, res) => {
 
                 axios.post(`${process.env.BASE_URL}/premium`, {
                     user_id: discordID,
+                    user_email: req.body['data']['attributes']['full_name'],
                     premium_type: 0,
                     premium_tier: tierID,
                     premium_started: startDate.toString(),
@@ -337,6 +338,7 @@ app.post('/premiumhook', async (req, res) => {
 
                         axios.post(`${process.env.BASE_URL}/premium`, {
                             user_id: discordID,
+                            user_email: req.body['data']['attributes']['full_name'],
                             premium_type: 0,
                             premium_tier: tierID,
                             premium_started: startDate.toString(),

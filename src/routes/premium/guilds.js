@@ -18,6 +18,14 @@ router.get('/', async (req, res) => {
     return res.status(200).json(guilds);
 })
 
+router.get('/user/:guildId', async (req, res) => {
+    const { guildId } = req.params;
+    const userDoc = await Premium.findOne({ premium_servers: guildId });
+    if (!userDoc)
+        return res.status(404).json({ success: false, error: "There was no information found for guild with id: " + guildId})
+    return res.status(200).json(userDoc);
+})
+
 router.post('/:userId', async (req, res) => {
     const { body } = req;
     const { userId } = req.params;

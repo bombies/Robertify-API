@@ -39,6 +39,7 @@ router.post('/:userId', async (req, res) => {
     userDoc.premium_servers = body;
     await userDoc.save();
     await setGuildCache();
+    await updateUserCache(userId, userDoc);
     return res.status(200).json({ success: true });
 })
 
@@ -56,6 +57,7 @@ router.patch('/:userId', async (req, res) => {
     userDoc.premium_servers = [...userDoc.premium_servers, ...uniqueItems];
     await userDoc.save();
     await setGuildCache();
+    await updateUserCache(userId, userDoc);
     return res.status(200).json({ success: true });
 })
 
@@ -75,6 +77,10 @@ const setGuildCache = async () => {
 
     redis.set(HASH_NAME, JSON.stringify(guilds));
     return guilds;
+}
+
+const updateUserCache = async (userId, doc) => {
+    await redis.setex('ROBERTIFY_PREMIUM#' + userId, 3600, JSON.stringify(doc._doc));
 }
 
 const updateGuildCache = async (guilds) => {

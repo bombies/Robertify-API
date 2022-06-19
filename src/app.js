@@ -42,6 +42,7 @@ app.use(Sentry.Handlers.tracingHandler());
 const authRoute = require('./routes/auth')
 const {computeHash} = require("./routes/auth");
 const axios = require("axios");
+const {setGuildCache} = require("./routes/premium/guilds");
 
 app.use('/', authRoute);
 
@@ -360,6 +361,7 @@ const deletePremiumDoc = async (userId) => {
             'auth-token': accessKey
         }
     })
+        .then(() => setGuildCache())
         .then(() => console.log(`Deleted premium info for ${userId}`))
         .catch(() => console.error(`There was an error deleting premium information for ${userId}`));
 }

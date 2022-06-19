@@ -69,7 +69,7 @@ router.get('/:userId', async (req, res) => {
     return res.status(200).json(userDoc.premium_servers);
 })
 
-const setGuildCache = async () => {
+export const setGuildCache = async () => {
     const collection = await Premium.find();
     const guilds = [];
 

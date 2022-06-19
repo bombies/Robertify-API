@@ -52,7 +52,8 @@ router.patch('/:userId', async (req, res) => {
     const userDoc = await Premium.findOne({ user_id: userId });
     if (!userDoc)
         return res.status(404).json({ success: false, error: 'There is no such premium user with the id: ' + userId});
-    userDoc.premium_servers = [...userDoc.premium_servers, ...body];
+    const uniqueItems = body.filter(item => !userDoc.premium_servers.includes(item))
+    userDoc.premium_servers = [...userDoc.premium_servers, ...uniqueItems];
     await userDoc.save();
     await setGuildCache();
     return res.status(200).json({ success: true });

@@ -69,7 +69,7 @@ router.get('/:userId', async (req, res) => {
     return res.status(200).json(userDoc.premium_servers);
 })
 
-export const setGuildCache = async () => {
+const setGuildCache = async () => {
     const collection = await Premium.find();
     const guilds = [];
 
@@ -78,6 +78,8 @@ export const setGuildCache = async () => {
     redis.set(HASH_NAME, JSON.stringify(guilds));
     return guilds;
 }
+
+module.exports.setGuildCache = setGuildCache;
 
 const updateUserCache = async (userId, doc) => {
     await redis.setex('ROBERTIFY_PREMIUM#' + userId, 3600, JSON.stringify(doc._doc));

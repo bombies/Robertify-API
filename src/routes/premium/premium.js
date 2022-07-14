@@ -1,5 +1,7 @@
 const router = require('express').Router();
-const Premium = require('../../models/Premium')
+const db = require('../../databases/RobertifyDB');
+const Collections = require('../../databases/Collections');
+const Premium = db().collection(Collections.Premium.description);
 const Joi = require('@hapi/joi');
 const {redis} = require("../../utils/RedisClient");
 
@@ -44,7 +46,7 @@ router.post('/', async(req, res) => {
 })
 
 router.get('/', async (req, res) => {
-    const allDocs = await Premium.find();
+    const allDocs = await Premium.find().toArray();
     return res.status(200).json(allDocs);
 })
 

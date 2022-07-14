@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 
-const schema = mongoose.Schema({
+const schema = new Schema({
     user_id: String,
     user_email: String,
     premium_type: Number,
@@ -10,4 +10,4 @@ const schema = mongoose.Schema({
     premium_expires: String,
 }, { collection: 'premium' });
 
-module.exports = mongoose.model('Premium', schema);
+module.exports = schema;

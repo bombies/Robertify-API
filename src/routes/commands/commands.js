@@ -1,4 +1,6 @@
-const Command = require('../../models/Command');
+const db = require('../../databases/RobertifyDB');
+const Collections = require('../../databases/Collections');
+const Command = db().collection(Collections.Command.description);
 const router = require('express').Router();
 const Joi = require('@hapi/joi');
 const { redis } = require('../../utils/RedisClient');

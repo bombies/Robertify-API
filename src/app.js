@@ -70,39 +70,36 @@ app.post('/premiumhook', async (req, res) => {
     }
 });
 
-// Connect to MongoDB
-mongoose.connect(
-    `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER_NAME}.${process.env.MONGO_HOSTNAME}/${process.env.MONGO_DATABASE_NAME}`,
-    { useNewUrlParser: true },
-    () => {
-        console.log('Connected to MongoDB');
-    }
-);
-
 app.listen(process.env.PORT || 3000, process.env.LISTEN_IP || '0.0.0.0', async () => {
     // Premium Removal Rescheduling
-    console.log('Rescheduling premium removals');
-    const authTokenReq = await axios.post(`${process.env.BASE_URL}/login`, {
-        user_name: 'bombies',
-        master_password: process.env.MASTER_PASSWORD
-    });
-    const accessKey = authTokenReq.data.token;
-    const allDocs = (await axios.get(`${process.env.BASE_URL}/premium`, {
-        headers: {
-            'auth-token': accessKey
-        }
-    })).data;
+    setTimeout(async () => {
+        console.log('Rescheduling premium removals');
+        try {
+            const authTokenReq = await axios.post(`${process.env.BASE_URL}/login`, {
+                user_name: 'bombies',
+                master_password: process.env.MASTER_PASSWORD
+            });
+            const accessKey = authTokenReq.data.token;
+            const allDocs = (await axios.get(`${process.env.BASE_URL}/premium`, {
+                headers: {
+                    'auth-token': accessKey
+                }
+            })).data;
 
-    for (const doc of allDocs) {
-        if (doc.premium_expires - new Date().getTime() <= 0)
-            await deletePremiumDoc(doc.user_id);
-        else {
-            const removeJob = scheduler.scheduleJob(new Date(Number(doc.premium_expires)), () => deletePremiumDoc(doc.user_id));
-            premiumRemovalJobs.set(doc.user_id, removeJob);
-        }
-    }
+            for (const doc of allDocs) {
+                if (doc.premium_expires - new Date().getTime() <= 0)
+                    await deletePremiumDoc(doc.user_id);
+                else {
+                    const removeJob = scheduler.scheduleJob(new Date(Number(doc.premium_expires)), () => deletePremiumDoc(doc.user_id));
+                    premiumRemovalJobs.set(doc.user_id, removeJob);
+                }
+            }
 
-    console.log('The API is now running!');
+            console.log('The API is now running!');
+        } catch (ex) {
+            console.error(ex);
+        }
+    }, 5000)
 });
 
 const handlePremiumEvents = async (req, res, discordID, entitledTiers) => {
@@ -363,7 +360,7 @@ const deletePremiumDoc = async (userId) => {
     })
         .then(() => setGuildCache())
         .then(() => console.log(`Deleted premium info for ${userId}`))
-        .catch(() => console.error(`There was an error deleting premium information for ${userId}`));
+        .catch(ex => console.error(`There was an error deleting premium information for ${userId}`, ex));
 }
 
 const getTierID = (tierName) => {

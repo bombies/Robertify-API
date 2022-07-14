@@ -1,9 +1,13 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
-const Guild = require('../../models/Guild');
+const db = require('../../databases/RobertifyDB');
+const db2 = require('../../databases/RobertifyDB2');
+const Collections = require('../../databases/Collections');
+const Guild = db().collection(Collections.Guilds.description);
+const Main = db().collection(Collections.Main.description);
+const GuildTwo = db2().collection(Collections.Guilds.description);
 require('mongoose-long')(mongoose);
 const { Types: { Long } } = mongoose;
-const Main = require('../../models/Main');
 const Joi = require('@hapi/joi');
 const { redis } = require('../../utils/RedisClient');
 
@@ -27,23 +31,62 @@ const validatePATCHBody = (body) => {
     return validateObj.validate(body);
 }
 
+const idValidate = (data) => {
+    const validation = Joi.object({
+        guild_id: Joi.string().regex(/^\d{17,18}$/).required()
+    });
+    return validation.validate(data);
+}
+
+const bodyValidate = (data) => {
+    const validation = Joi.object({
+        fields: Joi.array().items(Joi.string().max(128)).required()
+    });
+    return validation.validate(data);
+}
+
 router.get('/', async(req, res) => {
-    const guildCount = (await Main.find()).at(0)?.guild_count;
+    const guildCount = (await Main.findOne())?.guild_count;
     if (!guildCount)
-        return res.status(200).send({ message: "The guild count hasn't been set yet." });
+        return res.status(404).send({ message: "The guild count hasn't been set yet." });
     return res.status(200).send({ count: guildCount })
 
 });
 
+router.get('/:bot_id/:guild_id', async (req, res) => {
+    const { bot_id, guild_id } = req.params;
+    const { error } = idValidate({ guild_id: guild_id });
+    if (error)
+        return res.status(400).send({ message: error.details[0].message });
+
+    let guild;
+
+    switch (bot_id) {
+        case "1": {
+            guild = await Guild.findOne({ server_id : Long.fromString(req.params.guild_id) });
+            break;
+        }
+        case "2": {
+            guild = await GuildTwo.findOne({ server_id : Long.fromString(req.params.guild_id) });
+            break;
+        }
+        default: return res.status(400).json({ success: false, message: `There was no bot with the ID "${bot_id}"` })
+    }
+    await handleGuildFetch(req, res, guild);
+})
+
 router.get('/:guild_id', async (req, res) => {
-    const { error } = Guild.idValidate(req.params);
+    const { error } = idValidate(req.params);
     if (error)
         return res.status(400).send({ message: error.details[0].message });
 
     const guild = await Guild.findOne({ server_id : Long.fromString(req.params.guild_id) });
+    await handleGuildFetch(req, res, guild);
+});
 
+const handleGuildFetch = async (req, res, guild) => {
     if (!guild)
-            return res.status(404).send({ message: `There was no guild found with the ID ${req.params.guild_id}`});
+        return res.status(404).send({ message: `There was no guild found with the ID ${req.params.guild_id}`});
 
     const permissionsParsed = {};
     const restrictedChannelsParsed = {};
@@ -66,33 +109,55 @@ router.get('/:guild_id', async (req, res) => {
         restrictedChannelsParsed[key] = guild.restricted_channels[key].map(val => val.toString());
     }
 
-    guild._doc.server_id = guild.server_id.toString();
-    guild._doc.permissions = permissionsParsed;
-    guild._doc.restricted_channels = restrictedChannelsParsed;
-    guild._doc.announcement_channel = guild.announcement_channel.toString();
-    guild._doc.log_channel = guild.log_channel ? guild.log_channel.toString() : null;
-    guild._doc.locale ??= 'english';
+    guild.server_id = guild.server_id.toString();
+    guild.permissions = permissionsParsed;
+    guild.restricted_channels = restrictedChannelsParsed;
+    guild.announcement_channel = guild.announcement_channel.toString();
+    guild.log_channel = guild.log_channel ? guild.log_channel.toString() : null;
+    guild.locale ??= 'english';
 
     if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
-        return res.status(200).send(guild._doc);
+        return res.status(200).send(guild);
     } else {
-        const { error2 } = Guild.bodyValidate(req.body);
+        const { error2 } = bodyValidate(req.body);
         if (error2)
             return res.status(400).send({ message: error2.details[0].message });
-        
+
         const obj = {};
         const fields = req.body.fields;
-        
+
         if (!fields)
             return res.status(400).send({ message: 'Invalid body!' })
 
         fields.forEach(field => obj[field] = guild[field]);
         return res.status(200).send(obj);
     }
-});
+}
+
+router.patch('/:bot_id/:guild_id', async (req, res) => {
+    const { bot_id, guild_id } = req.params;
+    const { error } = idValidate({ guild_id: guild_id });
+    if (error)
+        return res.status(400).send({ message: error.details[0].message });
+
+    let guild;
+    switch (bot_id) {
+        case "1": {
+            guild = await Guild.findOne({ server_id : Long.fromString(req.params.guild_id) });
+            break;
+        }
+        case "2": {
+            guild = await GuildTwo.findOne({ server_id : Long.fromString(req.params.guild_id) });
+            break;
+        }
+        default: return res.status(400).json({ success: false, message: `There was no bot with the ID "${bot_id}"` });
+    }
+
+    await handleGuildPatch(req, res, guild);
+})
 
 router.patch('/:guild_id', async (req, res) => {
-    const { error } = Guild.idValidate(req.params);
+    const { error } = idValidate(req.params);
     if (error)
         return res.status(400).send({ message: error.details[0].message });
     
@@ -102,8 +167,12 @@ router.patch('/:guild_id', async (req, res) => {
 
     const guild = await Guild.findOne({ server_id : Long.fromString(req.params.guild_id) });
 
+    await handleGuildPatch(req, res, guild);
+})
+
+const handleGuildPatch = async (req, res, guild) => {
     if (!guild)
-            return res.status(404).send({ message: `There was no guild found with the ID ${req.params.guild_id}`});
+        return res.status(404).send({ message: `There was no guild found with the ID ${req.params.guild_id}`});
 
     let permissionsParsed;
     let restrictedChannelsParsed;
@@ -123,7 +192,7 @@ router.patch('/:guild_id', async (req, res) => {
                 continue;
             }
 
-            permissionsParsed[key] = permissions[key].map(val => Long.fromString(val, 10));
+            permissionsParsed[key] = permissions[key].map(val => Long.fromString(val));
         }
 
         for (let key in restricted_channels) {
@@ -174,6 +243,6 @@ router.patch('/:guild_id', async (req, res) => {
         console.log(ex);
         res.status(500).json({error: 'Internal server error'});
     }
-})
+}
 
 module.exports = router;

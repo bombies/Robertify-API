@@ -1,23 +1,10 @@
 const Joi = require('@hapi/joi');
+const { Schema } = require('mongoose');
 const mongoose = require('mongoose');
 require('mongoose-long')(mongoose);
 const { Types: { Long } } = mongoose;
 
-const idValidate = (data) => {
-    const validation = Joi.object({
-        guild_id: Joi.string().regex(/^[0-9]{17,18}$/).required()
-    });
-    return validation.validate(data);
-}
-
-const bodyValidate = (data) => {
-    const validation = Joi.object({
-        fields: Joi.array().items(Joi.string().max(128)).required()
-    });
-    return validation.validate(data);
-}
-
-const schema = mongoose.Schema({
+const schema = new Schema({
     dedicated_channel: {
         message_id: Long,
         channel_id: Long
@@ -112,6 +99,6 @@ const schema = mongoose.Schema({
     twenty_four_seven_mode: Boolean
 });
 
-module.exports = mongoose.model('Guilds', schema);
-module.exports.idValidate = idValidate;
-module.exports.bodyValidate = bodyValidate;
+module.exports = schema;
+// module.exports.idValidate = idValidate;
+// module.exports.bodyValidate = bodyValidate;

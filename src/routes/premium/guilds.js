@@ -1,5 +1,7 @@
 const router = require('express').Router();
-const Premium = require('../../models/Premium')
+const db = require('../../databases/RobertifyDB');
+const Collections = require('../../databases/Collections');
+const Premium = db().collection(Collections.Premium.description);
 const { redis } = require('../../utils/RedisClient');
 const Joi = require('@hapi/joi');
 const HASH_NAME = 'ROBERTIFY_PREMIUM_GUILDS#'
@@ -14,7 +16,7 @@ router.get('/', async (req, res) => {
     if (cachedInfo)
         return res.status(200).json(JSON.parse(cachedInfo));
 
-    const guilds = setGuildCache();
+    const guilds = await setGuildCache();
     return res.status(200).json(guilds);
 })
 
@@ -70,10 +72,10 @@ router.get('/:userId', async (req, res) => {
 })
 
 const setGuildCache = async () => {
-    const collection = await Premium.find();
+    const collection = Premium.find();
     const guilds = [];
 
-    collection.forEach(doc => guilds.push(...doc.premium_servers));
+    await collection.forEach(doc => guilds.push(...doc.premium_servers));
 
     redis.set(HASH_NAME, JSON.stringify(guilds));
     return guilds;

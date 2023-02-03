@@ -8,6 +8,8 @@ import {AuthService} from "./auth/route/auth.service";
 import {APP_GUARD} from "@nestjs/core";
 import {JwtAuthGuard} from "./auth/guards/jwt-auth.guard";
 import {MongooseModule} from "@nestjs/mongoose";
+import { GuildService } from './guild/guild.service';
+import { GuildModule } from './guild/guild.module';
 
 @Module({
   imports: [
@@ -15,13 +17,15 @@ import {MongooseModule} from "@nestjs/mongoose";
         isGlobal: true
       }),
       MongooseModule.forRoot(`mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER_NAME}.${process.env.MONGO_HOSTNAME}/${process.env.MONGO_DATABASE_NAME}`),
-      AuthModule
+      AuthModule,
+      GuildModule
   ],
   controllers: [AppController, AuthController],
   providers: [
       AppService,
       AuthService,
-      { provide: APP_GUARD, useClass: JwtAuthGuard }
+      { provide: APP_GUARD, useClass: JwtAuthGuard },
+      GuildService
   ],
 })
 export class AppModule {}

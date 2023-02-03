@@ -137,6 +137,9 @@ export class Guild {
 
     @Prop()
     twenty_four_seven_mode: boolean;
+
+    @Prop()
+    locale: string;
 }
 
 export const GuildSchema = SchemaFactory.createForClass(Guild);

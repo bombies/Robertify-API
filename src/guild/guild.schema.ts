@@ -114,7 +114,7 @@ export class Guild {
     @Prop()
     toggles: GuildToggles;
 
-    @Prop()
+    @Prop([String])
     eight_ball: string[];
 
     @Prop()

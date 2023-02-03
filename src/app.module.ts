@@ -7,12 +7,14 @@ import {AuthController} from "./auth/route/auth.controller";
 import {AuthService} from "./auth/route/auth.service";
 import {APP_GUARD} from "@nestjs/core";
 import {JwtAuthGuard} from "./auth/guards/jwt-auth.guard";
+import {MongooseModule} from "@nestjs/mongoose";
 
 @Module({
   imports: [
       ConfigModule.forRoot({
         isGlobal: true
       }),
+      MongooseModule.forRoot(`mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER_NAME}.${process.env.MONGO_HOSTNAME}/${process.env.MONGO_DATABASE_NAME}`),
       AuthModule
   ],
   controllers: [AppController, AuthController],

@@ -10,7 +10,6 @@ import {JwtAuthGuard} from "./routes/auth/guards/jwt-auth.guard";
 import {MongooseModule} from "@nestjs/mongoose";
 import { GuildService } from './routes/guild/guild.service';
 import { GuildModule } from './routes/guild/guild.module';
-import { SModule } from './routes/favourite-tracks/s/s.module';
 import { FavouriteTracksModule } from './routes/favourite-tracks/favourite-tracks.module';
 
 @Module({
@@ -21,7 +20,6 @@ import { FavouriteTracksModule } from './routes/favourite-tracks/favourite-track
       MongooseModule.forRoot(`mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER_NAME}.${process.env.MONGO_HOSTNAME}/${process.env.MONGO_DATABASE_NAME}`),
       AuthModule,
       GuildModule,
-      SModule,
       FavouriteTracksModule
   ],
   controllers: [AppController, AuthController],

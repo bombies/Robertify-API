@@ -6,7 +6,7 @@ import {UpdateGuildDto} from "./dto/update-guild.dto";
 
 @Injectable()
 export class GuildService {
-    constructor(@InjectModel('guilds') private guildModel: Model<GuildDocument>) {}
+    constructor(@InjectModel('guilds') private readonly guildModel: Model<GuildDocument>) {}
 
     async findOne(id: number) {
         return this.rawFindGuild(id);

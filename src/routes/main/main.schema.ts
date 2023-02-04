@@ -1,4 +1,4 @@
-import {HydratedDocument} from "mongoose";
+import {HydratedDocument, Types} from "mongoose";
 import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
 
 export type MainDocument = HydratedDocument<MainDatabaseDocument>;
@@ -20,11 +20,11 @@ export class MainDatabaseDocument {
     }))
     latest_alert: { alert_time: number, alert: string };
 
-    @Prop([Number])
-    developers: number[];
+    @Prop({ type: Array })
+    developers: Types.Long[] | string[];
 
-    @Prop([Number])
-    alert_viewers: number[];
+    @Prop({ type: Array })
+    alert_viewers: Types.Long[] | string[];
 
     @Prop()
     last_booted: number;

@@ -6,7 +6,7 @@ export type CommandDocument = HydratedDocument<Command>;
 @Schema()
 export class Command {
     @Prop()
-    id: string;
+    id: number;
 
     @Prop()
     name: string;

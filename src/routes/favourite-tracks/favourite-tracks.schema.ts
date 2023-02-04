@@ -1,12 +1,12 @@
-import {HydratedDocument} from "mongoose";
+import {HydratedDocument, Types} from "mongoose";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 
 export type FavouriteTracksDocument = HydratedDocument<FavouriteTracks>;
 
 @Schema()
 export class FavouriteTracks {
-    @Prop()
-    user_id: string;
+    @Prop({ type: Types.Long })
+    user_id: Types.Long | string;
 
     @Prop()
     tracks: any[];

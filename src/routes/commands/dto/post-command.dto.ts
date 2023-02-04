@@ -3,7 +3,7 @@ import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 export class PostCommandDto {
     @IsNotEmpty()
     @IsNumber()
-    id: number;
+    id: string;
 
     @IsNotEmpty()
     @IsString()

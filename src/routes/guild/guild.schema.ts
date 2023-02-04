@@ -1,25 +1,40 @@
-import {HydratedDocument} from "mongoose";
+import mongoose, {HydratedDocument, Types} from "mongoose";
+import mongooseLong from 'mongoose-long';
 import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
+mongooseLong(mongoose);
 
 export type GuildDocument = HydratedDocument<Guild>;
 export type DedicatedChannel = {
-    message_id: number,
-    channel_id: number,
+    message_id?: Types.Long | string,
+    channel_id?: Types.Long | string,
+    config?: {
+        disconnect: boolean,
+        play_pause: boolean,
+        previous: boolean,
+        rewind: boolean,
+        stop: boolean,
+        loop: boolean,
+        skip: boolean,
+        filters: boolean,
+        favourite: boolean,
+        shuffle: boolean
+    },
+    og_announcement_toggle?: boolean,
 };
 
 export type RestrictedChannels = {
-    voice_channels: number[],
-    text_channels: number[]
+    voice_channels?: Types.Long[] | string[],
+    text_channels?: Types.Long[] | string[]
 };
 
 export type GuildPermissions = {
-    0: number[],
-    1: number[],
-    2: number[],
-    3: number[],
-    4: number[],
-    5: number[],
-    users: Object
+    0?: Types.Long[] | string[],
+    1?: Types.Long[] | string[],
+    2?: Types.Long[] | string[],
+    3?: Types.Long[] | string[],
+    4?: Types.Long[] | string[],
+    5?: Types.Long[] | string[],
+    users?: Object
 };
 
 export type GuildToggles = {
@@ -90,17 +105,19 @@ export type GuildToggles = {
 };
 
 export type GuildBannedUser = {
-    banned_id: number,
-    banned_by: number,
-    banned_until: number,
-    banned_at: number
+    banned_id: Types.Long,
+    banned_by: Types.Long,
+    banned_until: Types.Long,
+    banned_at: Types.Long
 };
 
 @Schema()
 export class Guild {
     @Prop(raw({
-        message_id: Number,
-        channel_id: Number
+        message_id: Types.Long,
+        channel_id: Types.Long,
+        config: Object,
+        og_announcement_toggle: Boolean
     }))
     dedicated_channel: DedicatedChannel;
 
@@ -195,14 +212,14 @@ export class Guild {
     @Prop([String])
     eight_ball: string[];
 
-    @Prop()
-    announcement_channel: number;
+    @Prop({ type: Types.Long })
+    announcement_channel: Types.Long | string;
 
     @Prop()
     theme: string;
 
-    @Prop()
-    server_id: number;
+    @Prop({ type: Types.Long })
+    server_id: Types.Long | string;
 
     @Prop({ type: Array })
     banned_users: GuildBannedUser[];
@@ -210,8 +227,8 @@ export class Guild {
     @Prop()
     autoplay: boolean;
 
-    @Prop()
-    log_channel: number;
+    @Prop({ type: Types.Long })
+    log_channel: Types.Long | string;
 
     @Prop()
     twenty_four_seven_mode: boolean;

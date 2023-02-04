@@ -13,6 +13,7 @@ import { FavouriteTracksModule } from './routes/favourite-tracks/favourite-track
 import { MainModule } from './routes/main/main.module';
 import { CommandsModule } from './routes/commands/commands.module';
 import {JwtService} from "@nestjs/jwt";
+import {GuildController} from "./routes/guild/guild.controller";
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import {JwtService} from "@nestjs/jwt";
       MainModule,
       CommandsModule
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, GuildController],
   providers: [
       AppService,
       AuthService,

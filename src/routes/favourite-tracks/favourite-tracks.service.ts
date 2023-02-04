@@ -7,7 +7,7 @@ import {Model} from "mongoose";
 export class FavouriteTracksService {
     constructor(@InjectModel('favouritetracks') private readonly favouriteTracksModel: Model<FavouriteTracksDocument>) {}
 
-    async findOne(user_id: number) {
+    async findOne(user_id: string) {
         return this.favouriteTracksModel.findOne(({ user_id: user_id })).exec();
     }
 }

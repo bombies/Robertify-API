@@ -1,6 +1,7 @@
 import {DedicatedChannel, GuildBannedUser, GuildPermissions, GuildToggles, RestrictedChannels} from "../guild.schema";
 import {IsObject, IsOptional, IsString} from "class-validator";
 import {IsDedicatedChannel} from "../../../utils/decorators/validators/dedicated-channel.validator";
+import {Types} from "mongoose";
 
 export class UpdateGuildDto {
     @IsOptional()
@@ -40,7 +41,7 @@ export class UpdateGuildDto {
     autoplay?: boolean;
 
     @IsOptional()
-    log_channel?: number;
+    log_channel?: Types.Long;
 
     @IsOptional()
     twenty_four_seven_mode?: boolean;

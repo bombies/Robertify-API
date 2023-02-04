@@ -8,11 +8,10 @@ import {AuthService} from "./routes/auth/route/auth.service";
 import {APP_GUARD} from "@nestjs/core";
 import {JwtAuthGuard} from "./routes/auth/guards/jwt-auth.guard";
 import {MongooseModule} from "@nestjs/mongoose";
-import { GuildService } from './routes/guild/guild.service';
 import { GuildModule } from './routes/guild/guild.module';
 import { FavouriteTracksModule } from './routes/favourite-tracks/favourite-tracks.module';
-import { MainModule } from './main/main.module';
 import { MainModule } from './routes/main/main.module';
+import { CommandsModule } from './routes/commands/commands.module';
 
 @Module({
   imports: [
@@ -23,14 +22,14 @@ import { MainModule } from './routes/main/main.module';
       AuthModule,
       GuildModule,
       FavouriteTracksModule,
-      MainModule
+      MainModule,
+      CommandsModule
   ],
   controllers: [AppController, AuthController],
   providers: [
       AppService,
       AuthService,
-      { provide: APP_GUARD, useClass: JwtAuthGuard },
-      GuildService
-  ],
+      { provide: APP_GUARD, useClass: JwtAuthGuard }
+  ]
 })
 export class AppModule {}

@@ -18,4 +18,4 @@ export class Command {
     category: string;
 }
 
-const CommandSchema = SchemaFactory.createForClass(Command);
+export const CommandSchema = SchemaFactory.createForClass(Command);

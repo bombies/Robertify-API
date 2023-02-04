@@ -2,16 +2,16 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {ConfigModule} from "@nestjs/config";
-import { AuthModule } from './auth/route/auth.module';
-import {AuthController} from "./auth/route/auth.controller";
-import {AuthService} from "./auth/route/auth.service";
+import { AuthModule } from './routes/auth/route/auth.module';
+import {AuthController} from "./routes/auth/route/auth.controller";
+import {AuthService} from "./routes/auth/route/auth.service";
 import {APP_GUARD} from "@nestjs/core";
-import {JwtAuthGuard} from "./auth/guards/jwt-auth.guard";
+import {JwtAuthGuard} from "./routes/auth/guards/jwt-auth.guard";
 import {MongooseModule} from "@nestjs/mongoose";
-import { GuildService } from './guild/guild.service';
-import { GuildModule } from './guild/guild.module';
-import { SModule } from './favourite-tracks/s/s.module';
-import { FavouriteTracksModule } from './favourite-tracks/favourite-tracks.module';
+import { GuildService } from './routes/guild/guild.service';
+import { GuildModule } from './routes/guild/guild.module';
+import { SModule } from './routes/favourite-tracks/s/s.module';
+import { FavouriteTracksModule } from './routes/favourite-tracks/favourite-tracks.module';
 
 @Module({
   imports: [

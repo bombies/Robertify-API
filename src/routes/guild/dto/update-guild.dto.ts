@@ -1,6 +1,6 @@
 import {DedicatedChannel, GuildBannedUser, GuildPermissions, GuildToggles, RestrictedChannels} from "../guild.schema";
 import {IsObject, IsOptional, IsString} from "class-validator";
-import {IsDedicatedChannel} from "../../decorators/validators/dedicated-channel.validator";
+import {IsDedicatedChannel} from "../../../utils/decorators/validators/dedicated-channel.validator";
 
 export class UpdateGuildDto {
     @IsOptional()

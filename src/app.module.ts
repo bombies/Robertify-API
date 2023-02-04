@@ -12,6 +12,7 @@ import { GuildModule } from './routes/guild/guild.module';
 import { FavouriteTracksModule } from './routes/favourite-tracks/favourite-tracks.module';
 import { MainModule } from './routes/main/main.module';
 import { CommandsModule } from './routes/commands/commands.module';
+import {JwtService} from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CommandsModule } from './routes/commands/commands.module';
   providers: [
       AppService,
       AuthService,
+      JwtService,
       { provide: APP_GUARD, useClass: JwtAuthGuard }
   ]
 })

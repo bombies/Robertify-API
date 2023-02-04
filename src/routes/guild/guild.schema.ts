@@ -1,6 +1,5 @@
 import {HydratedDocument} from "mongoose";
-import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
-import MongooseLong from 'mongoose-long';
+import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
 
 export type GuildDocument = HydratedDocument<Guild>;
 export type DedicatedChannel = {
@@ -99,19 +98,98 @@ export type GuildBannedUser = {
 
 @Schema()
 export class Guild {
-    @Prop()
+    @Prop(raw({
+        message_id: Number,
+        channel_id: Number
+    }))
     dedicated_channel: DedicatedChannel;
 
-    @Prop()
+    @Prop(raw({
+        voice_channels: Array,
+        text_channels: Array
+    }))
     restricted_channels: RestrictedChannels;
 
     @Prop()
     prefix: string;
 
-    @Prop()
+    @Prop(raw({
+        0: Array,
+        1: Array,
+        2: Array,
+        3: Array,
+        4: Array,
+        5: Array,
+        users: Object
+    }))
     permissions: GuildPermissions;
 
-    @Prop()
+    @Prop(raw({
+        restricted_text_channels: Boolean,
+        restricted_voice_channels: Boolean,
+        announce_changelogs: Boolean,
+        "8ball": Boolean,
+        show_requester: Boolean,
+        vote_skips: Boolean,
+        announce_messages: Boolean,
+        polls: Boolean,
+        tips: Boolean,
+        global_announcements: Boolean,
+        log_toggles: {
+            queue_add: Boolean,
+            track_move: Boolean,
+            track_loop: Boolean,
+            player_pause: Boolean,
+            track_vote_skip: Boolean,
+            queue_shuffle: Boolean,
+            player_resume: Boolean,
+            volume_change: Boolean,
+            track_seek: Boolean,
+            track_previous: Boolean,
+            track_skip: Boolean,
+            track_rewind: Boolean,
+            bot_disconnected: Boolean,
+            queue_remove: Boolean,
+            filter_toggle: Boolean,
+            player_stop: Boolean,
+            queue_loop: Boolean,
+            queue_clear: Boolean,
+            track_jump: Boolean
+        },
+        dj_toggles: {
+            "247": Boolean,
+            play: Boolean,
+            disconnect: Boolean,
+            favouritetracks: Boolean,
+            skip: Boolean,
+            seek: Boolean,
+            remove: Boolean,
+            karaoke: Boolean,
+            tremolo: Boolean,
+            search: Boolean,
+            loop: Boolean,
+            nightcore: Boolean,
+            join: Boolean,
+            lyrics: Boolean,
+            jump: Boolean,
+            vibrato: Boolean,
+            resume: Boolean,
+            move: Boolean,
+            nowplaying: Boolean,
+            previous: Boolean,
+            clear: Boolean,
+            skipto: Boolean,
+            "8d": Boolean,
+            pause: Boolean,
+            autoplay: Boolean,
+            volume: Boolean,
+            lofi: Boolean,
+            rewind: Boolean,
+            stop: Boolean,
+            shuffleplay: Boolean,
+            queue: Boolean,
+        }
+    }))
     toggles: GuildToggles;
 
     @Prop([String])
@@ -126,7 +204,7 @@ export class Guild {
     @Prop()
     server_id: number;
 
-    @Prop()
+    @Prop({ type: Array })
     banned_users: GuildBannedUser[];
 
     @Prop()

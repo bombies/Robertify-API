@@ -1,5 +1,5 @@
 import {HydratedDocument} from "mongoose";
-import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
+import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
 
 export type MainDocument = HydratedDocument<MainDatabaseDocument>;
 
@@ -11,10 +11,13 @@ export class MainDatabaseDocument {
     @Prop()
     identifier: string;
 
-    @Prop()
+    @Prop({ type: Object })
     reports: Object;
 
-    @Prop()
+    @Prop(raw({
+        alert_time: Number,
+        alert: String
+    }))
     latest_alert: { alert_time: number, alert: string };
 
     @Prop([Number])
@@ -26,7 +29,7 @@ export class MainDatabaseDocument {
     @Prop()
     last_booted: number;
 
-    @Prop()
+    @Prop({ type: Object })
     suggestions: Object;
 
     @Prop()

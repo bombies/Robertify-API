@@ -11,6 +11,8 @@ import {MongooseModule} from "@nestjs/mongoose";
 import { GuildService } from './routes/guild/guild.service';
 import { GuildModule } from './routes/guild/guild.module';
 import { FavouriteTracksModule } from './routes/favourite-tracks/favourite-tracks.module';
+import { MainModule } from './main/main.module';
+import { MainModule } from './routes/main/main.module';
 
 @Module({
   imports: [
@@ -20,7 +22,8 @@ import { FavouriteTracksModule } from './routes/favourite-tracks/favourite-track
       MongooseModule.forRoot(`mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_CLUSTER_NAME}.${process.env.MONGO_HOSTNAME}/${process.env.MONGO_DATABASE_NAME}`),
       AuthModule,
       GuildModule,
-      FavouriteTracksModule
+      FavouriteTracksModule,
+      MainModule
   ],
   controllers: [AppController, AuthController],
   providers: [

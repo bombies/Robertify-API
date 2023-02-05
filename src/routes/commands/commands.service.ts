@@ -35,7 +35,7 @@ export class CommandsService {
         return this.commandsModel.insertMany(PostManyCommandsDto);
     }
 
-    async updateOne(id: string, updateCommandDto: UpdateCommandDto) {
+    async updateOne(id: number, updateCommandDto: UpdateCommandDto) {
         const command = await this.findOneRawById(id);
         if (!command)
             throw new HttpException('There is no such command with id: ' + id, HttpStatus.NOT_FOUND);
@@ -46,7 +46,7 @@ export class CommandsService {
         return this.commandsModel.findOne({ name: name }).exec();
     }
 
-    private async findOneRawById(id: string) {
+    private async findOneRawById(id: number) {
         return this.commandsModel.findOne({ id: id }).exec();
     }
 

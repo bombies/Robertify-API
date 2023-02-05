@@ -15,6 +15,7 @@ import { CommandsModule } from './routes/commands/commands.module';
 import {JwtService} from "@nestjs/jwt";
 import {GuildController} from "./routes/guild/guild.controller";
 import {CommandsController} from "./routes/commands/commands.controller";
+import {MainController} from "./routes/main/main.controller";
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import {CommandsController} from "./routes/commands/commands.controller";
       MainModule,
       CommandsModule
   ],
-  controllers: [AppController, AuthController, GuildController, CommandsController],
+  controllers: [AppController, AuthController, GuildController, CommandsController, MainController],
   providers: [
       AppService,
       AuthService,

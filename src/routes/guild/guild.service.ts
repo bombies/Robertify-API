@@ -33,20 +33,22 @@ export class GuildService {
             throw new HttpException('There is no guild with the id: ' + id, HttpStatus.NOT_FOUND);
 
         // @ts-ignore
-        const retGuild = {...guild._doc};
+        return this.getSafeGuild(guild._doc);
+    }
+
+    public static getSafeGuild(guild: Guild) {
+        const retGuild = {...guild};
         const dedicatedChannelParsed = {};
         const permissionsParsed = {};
         const restrictedChannelsParsed = {};
 
-        // @ts-ignore
-        for (let key in guild._doc.dedicated_channel) {
+        for (let key in guild.dedicated_channel) {
             if (key !== 'message_id' && key !== 'channel_id')
                 dedicatedChannelParsed[key] = guild.dedicated_channel[key];
             else dedicatedChannelParsed[key] = guild.dedicated_channel[key].toString();
         }
 
-        // @ts-ignore
-        for (let key in guild._doc.permissions) {
+        for (let key in guild.permissions) {
             if (!(guild.permissions[key] instanceof Array)) {
                 permissionsParsed[key] = guild.permissions[key];
                 continue;
@@ -55,8 +57,7 @@ export class GuildService {
             permissionsParsed[key] = guild.permissions[key].map(val => val.toString());
         }
 
-        // @ts-ignore
-        for (let key in guild._doc.restricted_channels) {
+        for (let key in guild.restricted_channels) {
             if (!(guild.restricted_channels[key] instanceof Array)) {
                 permissionsParsed[key] = guild.restricted_channels[key];
                 continue;

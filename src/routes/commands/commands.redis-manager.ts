@@ -1,8 +1,5 @@
 import {RedisManager} from "../../utils/redis/redis-manager";
 import Redis from "ioredis";
-import {Guild} from "../guild/guild.schema";
-import {GuildService} from "../guild/guild.service";
-import {Types} from "mongoose";
 import {Command} from "./command.schema";
 
 export class CommandsRedisManager extends RedisManager {
@@ -20,6 +17,11 @@ export class CommandsRedisManager extends RedisManager {
 
     public async findOne(name: string) {
         return this.get<Command>(name);
+    }
+
+    public async findOneById(id: number) {
+        const cachedCommands = await this.findAll();
+        return cachedCommands.find(command => command.id == id);
     }
 
     public async findMany(names: string[]) {

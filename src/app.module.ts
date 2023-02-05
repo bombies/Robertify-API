@@ -16,6 +16,7 @@ import {JwtService} from "@nestjs/jwt";
 import {GuildController} from "./routes/guild/guild.controller";
 import {CommandsController} from "./routes/commands/commands.controller";
 import {MainController} from "./routes/main/main.controller";
+import {FavouriteTracksController} from "./routes/favourite-tracks/favourite-tracks.controller";
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import {MainController} from "./routes/main/main.controller";
       MainModule,
       CommandsModule
   ],
-  controllers: [AppController, AuthController, GuildController, CommandsController, MainController],
+  controllers: [AppController, AuthController, GuildController, CommandsController, MainController, FavouriteTracksController],
   providers: [
       AppService,
       AuthService,

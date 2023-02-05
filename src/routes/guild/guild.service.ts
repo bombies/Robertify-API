@@ -4,11 +4,21 @@ import mongoose, {Model, Types} from "mongoose";
 import mongooseLong from 'mongoose-long';
 import {Guild, GuildDocument} from "./guild.schema";
 import {UpdateGuildDto} from "./dto/update-guild.dto";
+import {InjectRedis} from "@liaoliaots/nestjs-redis";
+import Redis from "ioredis";
+import {GuildRedisManager} from "./guild.redis-manager";
 mongooseLong(mongoose);
 
 @Injectable()
 export class GuildService {
-    constructor(@InjectModel('guilds') private readonly guildModel: Model<GuildDocument>) {}
+    private readonly redisManager: GuildRedisManager;
+
+    constructor(
+        @InjectModel('guilds') private readonly guildModel: Model<GuildDocument>,
+        @InjectRedis() private readonly redis: Redis
+    ) {
+        this.redisManager = new GuildRedisManager(redis);
+    }
 
     async findOne(id: string) {
         return this.rawFindGuild(id);
@@ -28,25 +38,31 @@ export class GuildService {
     }
 
     private async rawFindGuild(id: string) {
-        const guild = await this.guildModel.findOne({ server_id: Types.Long.fromString(id) }).exec();
-        if (!guild)
-            throw new HttpException('There is no guild with the id: ' + id, HttpStatus.NOT_FOUND);
+        let cachedGuild = await this.redisManager.findOne(id);
+        if (!cachedGuild) {
+            const guild = await this.guildModel.findOne({ server_id: Types.Long.fromString(id) }).exec();
+            if (!guild)
+                throw new HttpException('There is no guild with the id: ' + id, HttpStatus.NOT_FOUND);
+            // @ts-ignore
+            cachedGuild = GuildService.getSafeGuild(guild._doc);
+            await this.redisManager.putOne(cachedGuild);
+        }
+        return cachedGuild;
+    }
 
-        // @ts-ignore
-        const retGuild = {...guild._doc};
+    public static getSafeGuild(guild: Guild) {
+        const retGuild = {...guild};
         const dedicatedChannelParsed = {};
         const permissionsParsed = {};
         const restrictedChannelsParsed = {};
 
-        // @ts-ignore
-        for (let key in guild._doc.dedicated_channel) {
+        for (let key in guild.dedicated_channel) {
             if (key !== 'message_id' && key !== 'channel_id')
                 dedicatedChannelParsed[key] = guild.dedicated_channel[key];
             else dedicatedChannelParsed[key] = guild.dedicated_channel[key].toString();
         }
 
-        // @ts-ignore
-        for (let key in guild._doc.permissions) {
+        for (let key in guild.permissions) {
             if (!(guild.permissions[key] instanceof Array)) {
                 permissionsParsed[key] = guild.permissions[key];
                 continue;
@@ -55,8 +71,7 @@ export class GuildService {
             permissionsParsed[key] = guild.permissions[key].map(val => val.toString());
         }
 
-        // @ts-ignore
-        for (let key in guild._doc.restricted_channels) {
+        for (let key in guild.restricted_channels) {
             if (!(guild.restricted_channels[key] instanceof Array)) {
                 permissionsParsed[key] = guild.restricted_channels[key];
                 continue;
@@ -77,7 +92,13 @@ export class GuildService {
     }
 
     private async rawRemoveGuild(id: string) {
-        return this.guildModel.deleteOne({ server_id: Types.Long.fromString(id) }).exec();
+        return this.guildModel.deleteOne({ server_id: Types.Long.fromString(id) })
+            .exec()
+            .then(async (result) => {
+                if (result.deletedCount > 0)
+                    await this.redisManager.deleteOne(id);
+                return result;
+            });
     }
 
     private async rawUpdateGuild(guild: Guild, updateGuildDto: UpdateGuildDto) {
@@ -127,6 +148,11 @@ export class GuildService {
         guild.permissions = updateGuildDto.permissions ?? guild.permissions;
         guild.restricted_channels = updateGuildDto.restricted_channels ?? guild.restricted_channels;
         guild.toggles = updateGuildDto.toggles ?? guild.toggles;
-        return this.guildModel.updateOne({ server_id: Types.Long.fromString(guild.server_id.toString())  }, guild).exec();
+        return this.guildModel.updateOne({ server_id: Types.Long.fromString(guild.server_id.toString())  }, guild)
+            .exec()
+            .then(async (result) => {
+                await this.redisManager.putOne(guild);
+                return result;
+            });
     }
 }

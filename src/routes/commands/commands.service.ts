@@ -5,10 +5,20 @@ import {Command, CommandDocument} from "./command.schema";
 import {PostCommandDto} from "./dto/post-command.dto";
 import {PostManyCommandsDto} from "./dto/post-many-commands.dto";
 import {UpdateCommandDto} from "./dto/update-command.dto";
+import {InjectRedis} from "@liaoliaots/nestjs-redis";
+import Redis from "ioredis";
+import {CommandsRedisManager} from "./commands.redis-manager";
 
 @Injectable()
 export class CommandsService {
-    constructor(@InjectModel('commands') private readonly commandsModel: Model<CommandDocument>) {}
+    private readonly redisManager: CommandsRedisManager;
+
+    constructor(
+        @InjectModel('commands') private readonly commandsModel: Model<CommandDocument>,
+        @InjectRedis() private readonly redis: Redis
+    ) {
+        this.redisManager = new CommandsRedisManager(redis);
+    }
 
     async findOne(name: string) {
         return this.findOneRaw(name);
@@ -43,29 +53,75 @@ export class CommandsService {
     }
 
     private async findOneRaw(name: string) {
-        return this.commandsModel.findOne({ name: name }).exec();
+        let cachedCommand = await this.redisManager.findOne(name);
+        if (!cachedCommand) {
+            const dbCommand = await this.commandsModel.findOne({ name: name }).exec();
+            if (!dbCommand)
+                throw new HttpException('There is no command with the name: ' + name, HttpStatus.NOT_FOUND);
+            cachedCommand = dbCommand;
+            await this.redisManager.putOne(cachedCommand);
+        }
+        return cachedCommand;
     }
 
     private async findOneRawById(id: number) {
-        return this.commandsModel.findOne({ id: id }).exec();
+        let cachedCommand = await this.redisManager.findOneById(id);
+        if (!cachedCommand) {
+            const dbCommand = await this.commandsModel.findOne({ id: id }).exec();
+            if (!dbCommand)
+                throw new HttpException('There is no command with the id: ' + id, HttpStatus.NOT_FOUND);
+            cachedCommand = dbCommand;
+            await this.redisManager.putOne(cachedCommand);
+        }
+        return cachedCommand;
     }
 
     private async findManyRaw(names: string[]) {
-        return this.commandsModel.find({ name: { $in: names } }).exec();
+        let cachedCommands = await this.redisManager.findMany(names);
+        const commandsToFind = [];
+        const validCommands = [];
+        cachedCommands.forEach((command, key) => {
+            if (!command)
+                commandsToFind.push(key);
+            else validCommands.push(command);
+        });
+
+        const dbCommands = await this.commandsModel.find({ name: { $in: names } }).exec()
+        dbCommands.forEach(command => validCommands.push(command));
+        return validCommands;
     }
 
     private async updateOneRaw(command: Command, updateCommandDto: UpdateCommandDto) {
         command.name = updateCommandDto.name ?? command.name;
         command.description = updateCommandDto.description ?? command.description;
         command.category = updateCommandDto.description ?? command.description;
-        return this.commandsModel.updateOne({ id: command.id }, command);
+        return this.commandsModel.updateOne({ id: command.id }, command)
+            .exec()
+            .then(async (result) => {
+                if (result.modifiedCount > 0)
+                    await this.redisManager.putOne(command);
+                return result;
+            });
     }
 
     private async deleteOneRaw(name: string) {
-        return this.commandsModel.deleteOne({ name: name }).exec();
+        return this.commandsModel.deleteOne({ name: name })
+            .exec()
+            .then(async (result) => {
+                if (result.deletedCount > 0)
+                    await this.redisManager.deleteOne(name);
+                return result;
+            });
     }
 
     private async deleteManyRaw(names: string[]) {
-        return this.commandsModel.deleteMany({ name: { $in: names }}).exec();
+        return this.commandsModel.deleteMany({ name: { $in: names }})
+            .exec()
+            .then(async (result) => {
+                if (result.deletedCount > 0)
+                    for (let name in names)
+                        if (await this.redisManager.findOne(name))
+                            await this.redisManager.deleteOne(name);
+            });
     }
 }

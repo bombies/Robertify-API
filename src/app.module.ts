@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import {ConfigModule} from "@nestjs/config";
+import {ConfigModule, ConfigService} from "@nestjs/config";
 import { AuthModule } from './routes/auth/route/auth.module';
 import {AuthController} from "./routes/auth/route/auth.controller";
 import {AuthService} from "./routes/auth/route/auth.service";
@@ -17,9 +17,23 @@ import {GuildController} from "./routes/guild/guild.controller";
 import {CommandsController} from "./routes/commands/commands.controller";
 import {MainController} from "./routes/main/main.controller";
 import {FavouriteTracksController} from "./routes/favourite-tracks/favourite-tracks.controller";
+import {RedisModule} from "@liaoliaots/nestjs-redis";
 
 @Module({
   imports: [
+      RedisModule.forRootAsync({
+         imports: [ConfigModule],
+         inject: [ConfigService],
+         useFactory: async (configService: ConfigService) => {
+             return {
+                 config: {
+                     host: configService.get("REDIS_HOST"),
+                     port: configService.get("REDIS_PORT"),
+                     password: configService.get("REDIS_PASSWORD"),
+                 }
+             }
+         }
+      }),
       ConfigModule.forRoot({
         isGlobal: true
       }),

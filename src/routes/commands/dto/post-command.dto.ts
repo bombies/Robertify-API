@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsIn, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 
 export class PostCommandDto {
     @IsNotEmpty()
@@ -15,5 +15,6 @@ export class PostCommandDto {
 
     @IsNotEmpty()
     @IsString()
+    @IsIn(['music', 'management', 'miscellaneous', 'utility'])
     category: string;
 }

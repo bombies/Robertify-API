@@ -42,7 +42,7 @@ export class CommandsService {
 
     async putMany(postManyCommandsDto: PostManyCommandsDto) {
         await this.deleteManyRaw(postManyCommandsDto.commands.map(e => e.name));
-        return this.commandsModel.insertMany(PostManyCommandsDto);
+        return this.commandsModel.insertMany(postManyCommandsDto.commands);
     }
 
     async updateOne(id: number, updateCommandDto: UpdateCommandDto) {

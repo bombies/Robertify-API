@@ -1,4 +1,4 @@
-import {Body, Controller, Get, HttpException, HttpStatus, Param} from '@nestjs/common';
+import {Body, Controller, Get, Patch, HttpException, HttpStatus, Param} from '@nestjs/common';
 import {GuildService} from "./guild.service";
 import {UpdateGuildDto} from "./dto/update-guild.dto";
 

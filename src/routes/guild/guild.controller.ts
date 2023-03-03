@@ -11,7 +11,7 @@ export class GuildController {
         return await this.guildService.findOne(id);
     }
 
-    @Get(':id')
+    @Patch(':id')
     async updateGuild(@Param('id') id: string, @Body() body: UpdateGuildDto) {
         return await this.guildService.updateOne(id, body);
     }

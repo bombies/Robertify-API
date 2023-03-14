@@ -1,5 +1,5 @@
 import {DedicatedChannel, GuildBannedUser, GuildPermissions, GuildToggles, RestrictedChannels} from "../guild.schema";
-import {IsObject, IsOptional, IsString} from "class-validator";
+import {IsArray, IsObject, IsOptional, IsString} from "class-validator";
 import {IsDedicatedChannel} from "../../../utils/decorators/validators/dedicated-channel.validator";
 import {Types} from "mongoose";
 
@@ -34,7 +34,7 @@ export class UpdateGuildDto {
     theme?: string;
 
     @IsOptional()
-    @IsObject()
+    @IsArray()
     banned_users?: GuildBannedUser[];
 
     @IsOptional()

@@ -107,6 +107,8 @@ export class GuildService {
             guild.server_id = Types.Long.fromString(guild.server_id as string);
         if (typeof guild.log_channel === 'string')
             guild.log_channel = Types.Long.fromString(guild.log_channel as string);
+        if (typeof updateGuildDto.log_channel === 'string')
+            updateGuildDto.log_channel = Types.Long.fromString(updateGuildDto.log_channel as string);
         if (updateGuildDto.dedicated_channel) {
             if (typeof updateGuildDto.dedicated_channel.channel_id === 'string')
                 updateGuildDto.dedicated_channel.channel_id = Types.Long.fromString(updateGuildDto.dedicated_channel.channel_id as string);
@@ -135,9 +137,6 @@ export class GuildService {
                         });
             }
         }
-
-        if (typeof guild.log_channel === 'string')
-            guild.log_channel = Types.Long.fromString(guild.log_channel);
 
         guild.twenty_four_seven_mode = updateGuildDto.twenty_four_seven_mode ?? guild.twenty_four_seven_mode;
         guild.autoplay = updateGuildDto.autoplay ?? guild.autoplay;

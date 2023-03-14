@@ -136,6 +136,9 @@ export class GuildService {
             }
         }
 
+        if (typeof guild.log_channel === 'string')
+            guild.log_channel = Types.Long.fromString(guild.log_channel);
+
         guild.twenty_four_seven_mode = updateGuildDto.twenty_four_seven_mode ?? guild.twenty_four_seven_mode;
         guild.autoplay = updateGuildDto.autoplay ?? guild.autoplay;
         guild.locale = updateGuildDto.locale ?? guild.locale;

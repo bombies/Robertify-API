@@ -48,6 +48,7 @@ export type GuildToggles = {
     polls: boolean,
     tips: boolean,
     global_announcements: boolean,
+    reminders: boolean,
     log_toggles: {
         queue_add: boolean,
         track_move: boolean,

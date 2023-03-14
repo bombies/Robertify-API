@@ -1,11 +1,10 @@
 import {DedicatedChannel, GuildBannedUser, GuildPermissions, GuildToggles, RestrictedChannels} from "../guild.schema";
 import {IsArray, IsObject, IsOptional, IsString} from "class-validator";
-import {IsDedicatedChannel} from "../../../utils/decorators/validators/dedicated-channel.validator";
 import {Types} from "mongoose";
 
 export class UpdateGuildDto {
     @IsOptional()
-    @IsDedicatedChannel()
+    @IsObject()
     dedicated_channel?: DedicatedChannel;
 
     @IsOptional()

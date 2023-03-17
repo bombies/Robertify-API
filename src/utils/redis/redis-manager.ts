@@ -4,7 +4,7 @@ export class RedisManager {
     protected cacheID: string;
 
     public constructor(private readonly redis: Redis, cacheID: string) {
-        this.cacheID = cacheID + "#";
+        this.cacheID = `${cacheID}#${process.env.MONGO_DATABASE_NAME}#`;
     }
 
     protected async setex(identifier: string, value: Object | any[], seconds: number) {

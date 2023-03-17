@@ -2,7 +2,7 @@ import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {InjectModel} from "@nestjs/mongoose";
 import mongoose, {Model, Types} from "mongoose";
 import mongooseLong from 'mongoose-long';
-import {Guild, GuildDocument} from "./guild.schema";
+import {Guild, GuildBannedUser, GuildDocument} from "./guild.schema";
 import {UpdateGuildDto} from "./dto/update-guild.dto";
 import {InjectRedis} from "@liaoliaots/nestjs-redis";
 import Redis from "ioredis";
@@ -55,6 +55,7 @@ export class GuildService {
         const dedicatedChannelParsed = {};
         const permissionsParsed = {};
         const restrictedChannelsParsed = {};
+        let bannedUsers: GuildBannedUser[];
 
         for (let key in guild.dedicated_channel) {
             if (key !== 'message_id' && key !== 'channel_id')
@@ -80,12 +81,21 @@ export class GuildService {
             restrictedChannelsParsed[key] = guild.restricted_channels[key].map(val => val.toString());
         }
 
+        bannedUsers = guild.banned_users.map(user => {
+            user.banned_at = user.banned_at.toString();
+            user.banned_by = user.banned_by.toString();
+            user.banned_until = user.banned_until.toString();
+            user.banned_id = user.banned_id.toString();
+            return user;
+        });
+
         retGuild.server_id = guild.server_id.toString();
         retGuild.dedicated_channel = dedicatedChannelParsed;
         retGuild.permissions = permissionsParsed;
         retGuild.restricted_channels = restrictedChannelsParsed;
         retGuild.announcement_channel = guild.announcement_channel.toString();
         retGuild.log_channel = guild.log_channel ? guild.log_channel.toString() : null;
+        retGuild.banned_users = bannedUsers;
         retGuild.locale ??= 'english';
 
         return retGuild;
@@ -136,6 +146,15 @@ export class GuildService {
                             else return val;
                         });
             }
+        }
+        if (updateGuildDto.banned_users) {
+            updateGuildDto.banned_users = updateGuildDto.banned_users.map(bannedUser => {
+                bannedUser.banned_at = typeof bannedUser.banned_at === 'string' ? Types.Long.fromString(bannedUser.banned_at) : bannedUser.banned_at;
+                bannedUser.banned_by = typeof bannedUser.banned_by === 'string' ? Types.Long.fromString(bannedUser.banned_by) : bannedUser.banned_by;
+                bannedUser.banned_until = typeof bannedUser.banned_until === 'string' ? Types.Long.fromString(bannedUser.banned_until) : bannedUser.banned_until;
+                bannedUser.banned_id = typeof bannedUser.banned_id === 'string' ? Types.Long.fromString(bannedUser.banned_id) : bannedUser.banned_id;
+                return bannedUser;
+            })
         }
 
         guild.twenty_four_seven_mode = updateGuildDto.twenty_four_seven_mode ?? guild.twenty_four_seven_mode;

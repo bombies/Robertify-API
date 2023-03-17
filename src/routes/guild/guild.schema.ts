@@ -106,10 +106,10 @@ export type GuildToggles = {
 };
 
 export type GuildBannedUser = {
-    banned_id: Types.Long,
-    banned_by: Types.Long,
-    banned_until: Types.Long,
-    banned_at: Types.Long
+    banned_id: Types.Long | string,
+    banned_by: Types.Long | string,
+    banned_until: Types.Long | string,
+    banned_at: Types.Long | string
 };
 
 @Schema()

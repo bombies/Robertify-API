@@ -40,14 +40,14 @@ export class GuildService {
     private async rawFindGuild(id: string) {
         let cachedGuild = await this.redisManager.findOne(id);
         if (!cachedGuild) {
-            const guild = await this.guildModel.findOne({ server_id: Types.Long.fromString(id) }).exec();
+            const guild = await this.guildModel.findOne({ server_id: { $in: [ id, Types.Long.fromString(id) ]}  }).exec();
             if (!guild)
                 throw new HttpException('There is no guild with the id: ' + id, HttpStatus.NOT_FOUND);
             // @ts-ignore
             cachedGuild = GuildService.getSafeGuild(guild._doc);
             await this.redisManager.putOne(cachedGuild);
         }
-        return cachedGuild;
+        return GuildService.getSafeGuild(cachedGuild);
     }
 
     public static getSafeGuild(guild: Guild) {
@@ -157,8 +157,8 @@ export class GuildService {
             })
         }
 
-        guild.twenty_four_seven_mode = updateGuildDto.twenty_four_seven_mode ?? guild.twenty_four_seven_mode;
-        guild.autoplay = updateGuildDto.autoplay ?? guild.autoplay;
+        guild.twenty_four_seven_mode = (updateGuildDto.twenty_four_seven_mode ?? guild.twenty_four_seven_mode) ?? false;
+        guild.autoplay = (updateGuildDto.autoplay ?? guild.autoplay) ?? false;
         guild.locale = updateGuildDto.locale ?? guild.locale;
         guild.prefix = updateGuildDto.prefix ?? guild.prefix;
         guild.theme = updateGuildDto.theme ?? guild.theme;
@@ -169,9 +169,15 @@ export class GuildService {
         guild.permissions = updateGuildDto.permissions ?? guild.permissions;
         guild.restricted_channels = updateGuildDto.restricted_channels ?? guild.restricted_channels;
         guild.toggles = updateGuildDto.toggles ?? guild.toggles;
-        return this.guildModel.updateOne({ server_id: Types.Long.fromString(guild.server_id.toString())  }, guild)
+
+        if (Object.keys(guild).includes("_id"))
+            // @ts-ignore
+            delete guild._id;
+
+        return this.guildModel.updateOne({ server_id: { $in: [ guild.server_id, guild.server_id.toString() ] }  }, guild)
             .exec()
             .then(async (result) => {
+                console.log(result);
                 await this.redisManager.putOne(guild);
                 return result;
             });

@@ -1,0 +1,30 @@
+name: Lint Pipeline
+
+on:
+  push:
+    branches: [ main, dev, features/**, fix/** ]
+  pull_request:
+    branches: [ main, dev, features/**, fix/** ]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install Dependencies
+        run: |
+          echo "Installing node dependencies..."
+          npm i
+      - name: Linting...
+        run: |
+          echo "Linting project..."
+          npm run lint
+        env:
+          CI: true

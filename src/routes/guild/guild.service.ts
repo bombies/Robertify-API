@@ -7,6 +7,7 @@ import {UpdateGuildDto} from "./dto/update-guild.dto";
 import {InjectRedis} from "@liaoliaots/nestjs-redis";
 import Redis from "ioredis";
 import {GuildRedisManager} from "./guild.redis-manager";
+import { BotWebClient } from 'src/utils/webclients/BotWebClient';
 mongooseLong(mongoose);
 
 @Injectable()
@@ -156,12 +157,28 @@ export class GuildService {
                 return bannedUser;
             })
         }
+        
+        if (updateGuildDto.locale) {
+            const botWebClient =  await BotWebClient.getInstance();
+            await botWebClient.post("/locale", {
+                server_id: guild.server_id.toString(),
+                locale: updateGuildDto.locale
+            })
+        }
+
+        if (updateGuildDto.theme) {
+            const botWebClient =  await BotWebClient.getInstance();
+            await botWebClient.post("/themes", {
+                server_id: guild.server_id.toString(),
+                theme: updateGuildDto.theme
+            })
+        }
 
         guild.twenty_four_seven_mode = (updateGuildDto.twenty_four_seven_mode ?? guild.twenty_four_seven_mode) ?? false;
         guild.autoplay = (updateGuildDto.autoplay ?? guild.autoplay) ?? false;
-        guild.locale = updateGuildDto.locale ?? guild.locale;
+        // guild.locale = updateGuildDto.locale ?? guild.locale;
         guild.prefix = updateGuildDto.prefix ?? guild.prefix;
-        guild.theme = updateGuildDto.theme ?? guild.theme;
+        // guild.theme = updateGuildDto.theme ?? guild.theme;
         guild.banned_users = updateGuildDto.banned_users ?? guild.banned_users;
         guild.dedicated_channel = updateGuildDto.dedicated_channel ?? guild.dedicated_channel;
         guild.eight_ball = updateGuildDto.eight_ball ?? guild.eight_ball;

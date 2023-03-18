@@ -22,7 +22,7 @@ export class BotWebClient {
             username: 'bombies',
             password: process.env.BOT_API_MASTER_PASSWORD
         })).data
-        return data?.access_token;
+        return data?.token;
     }
 
     private startTokenRefresh() {

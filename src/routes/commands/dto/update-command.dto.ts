@@ -1,15 +1,15 @@
-import {IsOptional, IsString} from "class-validator";
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateCommandDto {
-    @IsOptional()
-    @IsString()
-    name?: string;
+  @IsOptional()
+  @IsString()
+  name?: string;
 
-    @IsOptional()
-    @IsString()
-    description?: string;
+  @IsOptional()
+  @IsString()
+  description?: string;
 
-    @IsOptional()
-    @IsString()
-    category?: string;
+  @IsOptional()
+  @IsString()
+  category?: string;
 }

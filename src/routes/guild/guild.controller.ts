@@ -19,8 +19,8 @@ export class GuildController {
         return await this.guildService.updateOne(id, body);
     } catch (e) {
         if (e instanceof AxiosError)
-            throw new HttpException(e, e.status ?? 401);
-        throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR) 
+            throw new HttpException(e.message, e.status ?? 401, { cause: e });
+        throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, { cause: e }) 
     }
   }
 }

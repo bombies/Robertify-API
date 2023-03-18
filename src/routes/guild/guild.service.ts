@@ -177,7 +177,6 @@ export class GuildService {
         return this.guildModel.updateOne({ server_id: { $in: [ guild.server_id, guild.server_id.toString() ] }  }, guild)
             .exec()
             .then(async (result) => {
-                console.log(result);
                 await this.redisManager.putOne(guild);
                 return result;
             });

@@ -196,6 +196,7 @@ export class GuildService {
         server_id: guild.server_id.toString(),
         locale: updateGuildDto.locale,
       });
+      guild.locale = updateGuildDto.locale;
     }
 
     if (updateGuildDto.theme) {
@@ -204,6 +205,7 @@ export class GuildService {
         server_id: guild.server_id.toString(),
         theme: updateGuildDto.theme,
       });
+      guild.theme = updateGuildDto.theme;
     }
 
     guild.twenty_four_seven_mode =

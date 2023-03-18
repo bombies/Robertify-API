@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Patch, Param } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Param, HttpException } from '@nestjs/common';
 import { GuildService } from './guild.service';
 import { UpdateGuildDto } from './dto/update-guild.dto';
+import { AxiosError } from 'axios';
+import { HttpStatus } from '@nestjs/common/enums';
 
 @Controller('guild')
 export class GuildController {
@@ -13,6 +15,12 @@ export class GuildController {
 
   @Patch(':id')
   async updateGuild(@Param('id') id: string, @Body() body: UpdateGuildDto) {
-    return await this.guildService.updateOne(id, body);
+    try {
+        return await this.guildService.updateOne(id, body);
+    } catch (e) {
+        if (e instanceof AxiosError)
+            throw new HttpException(e, e.status ?? 401);
+        throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR) 
+    }
   }
 }

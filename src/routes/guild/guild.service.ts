@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import mongooseLong from 'mongoose-long';
@@ -148,8 +148,7 @@ export class GuildService {
         if (guild.restricted_channels[key] instanceof Array)
           updateGuildDto.restricted_channels[key] =
             updateGuildDto.restricted_channels[key].map((val) => {
-              if (typeof val === 'string')
-                return Types.Long.fromString(val);
+              if (typeof val === 'string') return Types.Long.fromString(val);
               else return val;
             });
       }
@@ -159,8 +158,7 @@ export class GuildService {
         if (guild.permissions[key] instanceof Array)
           updateGuildDto.permissions[key] = updateGuildDto.permissions[key].map(
             (val) => {
-              if (typeof val === 'string')
-                return Types.Long.fromString(val);
+              if (typeof val === 'string') return Types.Long.fromString(val);
               else return val;
             },
           );
@@ -191,20 +189,34 @@ export class GuildService {
     }
 
     if (updateGuildDto.locale) {
-      const botWebClient = await BotWebClient.getInstance();
-      await botWebClient.post('/locale', {
-        server_id: guild.server_id.toString(),
-        locale: updateGuildDto.locale,
-      });
+      try {
+        const botWebClient = await BotWebClient.getInstance();
+        await botWebClient.post('/locale', {
+          server_id: guild.server_id.toString(),
+          locale: updateGuildDto.locale,
+        });
+      } catch (e) {
+        Logger.warn(
+          "Couldn't update the locale for guild with id: " + guild.server_id,
+        );
+      }
+
       guild.locale = updateGuildDto.locale;
     }
 
     if (updateGuildDto.theme) {
-      const botWebClient = await BotWebClient.getInstance();
-      await botWebClient.post('/themes', {
-        server_id: guild.server_id.toString(),
-        theme: updateGuildDto.theme,
-      });
+      try {
+        const botWebClient = await BotWebClient.getInstance();
+        await botWebClient.post('/themes', {
+          server_id: guild.server_id.toString(),
+          theme: updateGuildDto.theme,
+        });
+      } catch (ex) {
+        Logger.warn(
+          "Couldn't update the locale for guild with id: " + guild.server_id,
+        );
+      }
+
       guild.theme = updateGuildDto.theme;
     }
 

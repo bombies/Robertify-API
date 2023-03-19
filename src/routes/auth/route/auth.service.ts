@@ -14,7 +14,7 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(
         { sub: 'admin' },
-        { secret: process.env.API_SECRET_KEY },
+        { secret: process.env.API_SECRET_KEY, expiresIn: 12 * 60 * 60 * 1000 },
       ),
     };
   }

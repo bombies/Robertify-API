@@ -126,9 +126,9 @@ export class GuildService {
   private async rawUpdateGuild(guild: Guild, updateGuildDto: UpdateGuildDto) {
     // Prelim Checks
     if (typeof guild.server_id === 'string')
-      guild.server_id = Types.Long.fromString(guild.server_id as string);
+      guild.server_id = Types.Long.fromString(guild.server_id);
     if (typeof guild.log_channel === 'string')
-      guild.log_channel = Types.Long.fromString(guild.log_channel as string);
+      guild.log_channel = Types.Long.fromString(guild.log_channel);
     if (typeof updateGuildDto.log_channel === 'string')
       updateGuildDto.log_channel = Types.Long.fromString(
         updateGuildDto.log_channel as string,
@@ -136,11 +136,11 @@ export class GuildService {
     if (updateGuildDto.dedicated_channel) {
       if (typeof updateGuildDto.dedicated_channel.channel_id === 'string')
         updateGuildDto.dedicated_channel.channel_id = Types.Long.fromString(
-          updateGuildDto.dedicated_channel.channel_id as string,
+          updateGuildDto.dedicated_channel.channel_id,
         );
       if (typeof updateGuildDto.dedicated_channel.message_id === 'string')
         updateGuildDto.dedicated_channel.message_id = Types.Long.fromString(
-          updateGuildDto.dedicated_channel.message_id as string,
+          updateGuildDto.dedicated_channel.message_id,
         );
     }
     if (updateGuildDto.restricted_channels) {
@@ -149,7 +149,7 @@ export class GuildService {
           updateGuildDto.restricted_channels[key] =
             updateGuildDto.restricted_channels[key].map((val) => {
               if (typeof val === 'string')
-                return Types.Long.fromString(val as string);
+                return Types.Long.fromString(val);
               else return val;
             });
       }
@@ -160,7 +160,7 @@ export class GuildService {
           updateGuildDto.permissions[key] = updateGuildDto.permissions[key].map(
             (val) => {
               if (typeof val === 'string')
-                return Types.Long.fromString(val as string);
+                return Types.Long.fromString(val);
               else return val;
             },
           );

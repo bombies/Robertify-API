@@ -198,6 +198,7 @@ export class GuildService {
       } catch (e) {
         Logger.warn(
           "Couldn't update the locale for guild with id: " + guild.server_id,
+            e
         );
       }
 
@@ -213,7 +214,8 @@ export class GuildService {
         });
       } catch (ex) {
         Logger.warn(
-          "Couldn't update the locale for guild with id: " + guild.server_id,
+          "Couldn't update the theme for guild with id: " + guild.server_id,
+            ex
         );
       }
 

@@ -9,6 +9,7 @@ import Redis from 'ioredis';
 import {GuildRedisManager} from './guild.redis-manager';
 import {BotWebClient} from 'src/utils/webclients/BotWebClient';
 import {SchedulerRegistry} from "@nestjs/schedule";
+import {AxiosError} from "axios";
 
 mongooseLong(mongoose);
 
@@ -191,7 +192,7 @@ export class GuildService {
             );
         }
 
-        if (updateGuildDto.locale) {
+        if (updateGuildDto.locale && (updateGuildDto.locale !== guild.locale)) {
             try {
                 const botWebClient = await BotWebClient.getInstance(this.schedulerRegistry);
                 await botWebClient.post('/locale', {
@@ -208,7 +209,7 @@ export class GuildService {
             guild.locale = updateGuildDto.locale;
         }
 
-        if (updateGuildDto.theme) {
+        if (updateGuildDto.theme && (updateGuildDto.theme !== guild.theme)) {
             try {
                 const botWebClient = await BotWebClient.getInstance(this.schedulerRegistry);
                 await botWebClient.post('/themes', {

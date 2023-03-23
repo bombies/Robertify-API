@@ -38,6 +38,33 @@ export class GuildService {
         return this.rawRemoveGuild(id);
     }
 
+    async createRequestChannel(id: string) {
+        const guild = await this.rawFindGuild(id);
+        const reqChannelObj = guild.dedicated_channel;
+
+        if (reqChannelObj && reqChannelObj.channel_id && reqChannelObj.channel_id !== '-1')
+            throw new HttpException(
+                `Server with id ${id} already has a request channel setup!`,
+                HttpStatus.BAD_REQUEST
+            );
+
+        const botWebClient = await BotWebClient.getInstance();
+        try {
+            return (await botWebClient.post('/reqchannel', {
+                server_id: id
+            })).data;
+        } catch (e) {
+            if (e instanceof AxiosError)
+                throw new HttpException(
+                    e.message,
+                    e.response.status,
+                    { cause: e }
+                );
+            Logger.error(`An error occurred attempting to create a request channel for guild with ID ${id}`, e);
+            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e});
+        }
+    }
+
     async findAll() {
         // TODO look into API pagination
     }
@@ -194,7 +221,7 @@ export class GuildService {
 
         if (updateGuildDto.locale && (updateGuildDto.locale !== guild.locale)) {
             try {
-                const botWebClient = await BotWebClient.getInstance(this.schedulerRegistry);
+                const botWebClient = await BotWebClient.getInstance();
                 await botWebClient.post('/locale', {
                     server_id: guild.server_id.toString(),
                     locale: updateGuildDto.locale,
@@ -211,7 +238,7 @@ export class GuildService {
 
         if (updateGuildDto.theme && (updateGuildDto.theme !== guild.theme)) {
             try {
-                const botWebClient = await BotWebClient.getInstance(this.schedulerRegistry);
+                const botWebClient = await BotWebClient.getInstance();
                 await botWebClient.post('/themes', {
                     server_id: guild.server_id.toString(),
                     theme: updateGuildDto.theme,

@@ -44,7 +44,7 @@ export class BotWebClient {
         return data?.token;
     }
 
-    public static async getInstance(schedulerRegistry: SchedulerRegistry, options?: CreateAxiosDefaults<any>) {
+    public static async getInstance(options?: CreateAxiosDefaults<any>) {
         if (!options) {
             if (this.INSTANCE) return this.INSTANCE.instance;
 

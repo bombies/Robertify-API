@@ -253,6 +253,38 @@ export class GuildService {
             guild.theme = updateGuildDto.theme;
         }
 
+        const buttonsToUpdate: string[] = [];
+
+        if (updateGuildDto.dedicated_channel.config) {
+            if (!guild.dedicated_channel.config) {
+                guild.dedicated_channel.config = updateGuildDto.dedicated_channel.config;
+                Object.keys(updateGuildDto.dedicated_channel.config).forEach(key => {
+                    buttonsToUpdate.push(key);
+                });
+            } else {
+                Object.keys(guild.dedicated_channel.config).forEach(key => {
+                    if (updateGuildDto.dedicated_channel.config[key] !== guild.dedicated_channel.config[key])
+                        buttonsToUpdate.push(key);
+                        guild.dedicated_channel.config[key] = updateGuildDto.dedicated_channel.config[key];
+                })
+            }
+        }
+
+        if (buttonsToUpdate) {
+            try {
+                const botWebClient = await BotWebClient.getInstance();
+                await botWebClient.post('/reqchannel/buttons', {
+                    server_id: guild.server_id.toString(),
+                    buttons: buttonsToUpdate,
+                });
+            } catch (ex) {
+                Logger.warn(
+                    "Couldn't update the request channel buttons for guild with id: " + guild.server_id,
+                    ex
+                );
+            }
+        }
+
         guild.twenty_four_seven_mode =
             updateGuildDto.twenty_four_seven_mode ??
             guild.twenty_four_seven_mode ??

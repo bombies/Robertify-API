@@ -27,23 +27,11 @@ export class GuildController {
 
     @Post(':id/reqchannel')
     async createRequestChannel(@Param('id') id: string) {
-        try {
-            return await this.guildService.createRequestChannel(id);
-        } catch (e) {
-            if (e instanceof AxiosError)
-                throw new HttpException(e.message, e.response.status ?? 401, {cause: e.response.data});
-            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e})
-        }
+        return await this.guildService.createRequestChannel(id);
     }
 
     @Delete(':id/reqchannel')
     async deleteRequestChannel(@Param('id') id: string) {
-        try {
-            return await this.guildService.deleteRequestChannel(id);
-        } catch (e) {
-            if (e instanceof AxiosError)
-                throw new HttpException(e.message, e.response.status ?? 401, {cause: e.response.data});
-            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e})
-        }
+        return await this.guildService.deleteRequestChannel(id);
     }
 }

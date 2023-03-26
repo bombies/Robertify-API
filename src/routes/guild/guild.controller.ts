@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Patch, Param, HttpException, Post} from '@nestjs/common';
+import {Body, Controller, Get, Patch, Param, HttpException, Post, Delete} from '@nestjs/common';
 import {GuildService} from './guild.service';
 import {UpdateGuildDto} from './dto/update-guild.dto';
 import {AxiosError} from 'axios';
@@ -29,6 +29,17 @@ export class GuildController {
     async createRequestChannel(@Param('id') id: string) {
         try {
             return await this.guildService.createRequestChannel(id);
+        } catch (e) {
+            if (e instanceof AxiosError)
+                throw new HttpException(e.message, e.response.status ?? 401, {cause: e.response.data});
+            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e})
+        }
+    }
+
+    @Delete(':id/reqchannel')
+    async deleteRequestChannel(@Param('id') id: string) {
+        try {
+            return await this.guildService.deleteRequestChannel(id);
         } catch (e) {
             if (e instanceof AxiosError)
                 throw new HttpException(e.message, e.response.status ?? 401, {cause: e.response.data});

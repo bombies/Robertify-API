@@ -65,6 +65,31 @@ export class GuildService {
         }
     }
 
+    async deleteRequestChannel(id: string) {
+        const guild = await this.rawFindGuild(id);
+        const reqChannelObj = guild.dedicated_channel;
+
+        if (!reqChannelObj || !reqChannelObj.channel_id || reqChannelObj.channel_id === '-1')
+            throw new HttpException(
+                `Server with id ${id} doesn't have a channel set!`,
+                HttpStatus.BAD_REQUEST
+            );
+
+        const botWebClient = await BotWebClient.getInstance();
+        try {
+            return (await botWebClient.delete(`/reqchannel/${id}`)).data;
+        } catch (e) {
+            if (e instanceof AxiosError)
+                throw new HttpException(
+                    e.message,
+                    e.response.status,
+                    { cause: e }
+                );
+            Logger.error(`An error occurred attempting to delete a request channel for guild with ID ${id}`, e);
+            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e});
+        }
+    }
+
     async findAll() {
         // TODO look into API pagination
     }

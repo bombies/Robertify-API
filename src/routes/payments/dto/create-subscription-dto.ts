@@ -37,10 +37,7 @@ export class CreateSubscriptionDto {
      * An array of billing cycles for trial billing and regular billing. A plan
      * can have at most two trial cycles and only one regular cycle.
      */
-    @IsArray({
-        each: true
-    })
-    @Length(1, 12)
+    @IsArray()
     billing_cycles: SubscriptionBillingCycle[];
 
     /**
@@ -71,6 +68,8 @@ type SubscriptionBillingCycle = {
     /**
      * The tenure type of the billing cycle. In case of a plan having trial cycle,
      * only 2 trial cycles are allowed per plan.
+     *
+     * Can either be `REGULAR` or `TRIAL`.
      */
     tenure_type: string,
     /**
@@ -102,8 +101,22 @@ type SubscriptionBillingCycle = {
  * A free trial billing cycle does not require a pricing scheme.
  */
 type SubscriptionPricingScheme = {
+    /**
+     * The pricing model for tiered plan. The tiers parameter is required.
+     * The pricing model can either be `VOLUME` or `TIERED`.
+     */
     pricing_model: string
+    /**
+     * An array of pricing tiers which are used for billing volume/tiered
+     * plans. pricing_model field has to be specified.
+     */
     tiers: SubscriptionPricingSchemeTier[]
+    /**
+     * The fixed amount to charge for the subscription. The changes to fixed
+     * amount are applicable to both existing and future subscriptions. For
+     * existing subscriptions, payments within 10 days of price change are
+     * not affected.
+     */
     fixed_price: SubscriptionPricingAmount
 }
 

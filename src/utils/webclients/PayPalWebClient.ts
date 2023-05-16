@@ -1,6 +1,7 @@
 import axios, {AxiosInstance, CreateAxiosDefaults} from 'axios';
 import {nanoid} from "nanoid";
 import * as process from "process";
+import {Buffer} from "buffer";
 
 export class PayPalWebClient {
     protected readonly instance: AxiosInstance;
@@ -10,7 +11,9 @@ export class PayPalWebClient {
         this.instance = axios.create({
             headers: {
                 Accept: 'application/json',
-                Authorization: `Bearer ${process.env.PAYPAL_CLIENT_ACCESS_TOKEN}`,
+                Authorization: `Basic ${
+                    Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString('base64')
+                }`,
             },
             timeout: 5 * 1000,
             ...options,

@@ -21,6 +21,7 @@ import {RedisModule} from '@liaoliaots/nestjs-redis';
 import {ScheduleModule} from "@nestjs/schedule";
 import {PaymentsModule} from "./routes/payments/payments.module";
 import {PaymentsController} from "./routes/payments/payments.controller";
+import {HttpModule} from "@nestjs/axios";
 
 @Module({
     imports: [
@@ -50,6 +51,7 @@ import {PaymentsController} from "./routes/payments/payments.controller";
         MainModule,
         CommandsModule,
         PaymentsModule,
+        HttpModule
     ],
     controllers: [
         AppController,

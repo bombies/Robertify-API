@@ -3,31 +3,32 @@ import {HydratedDocument} from "mongoose";
 
 @Schema()
 export class PremiumUser {
-  @Prop()
-  discord_id: string;
+    @Prop()
+    discord_id: string;
 
-  @Prop()
-  premium_id: string;
+    @Prop()
+    premium_id: string;
 
-  @Prop()
-  premium_started: number;
+    @Prop()
+    premium_started: number;
 
-  @Prop()
-  premium_ends: number;
+    @Prop()
+    premium_ends: number;
 }
 
+@Schema()
 export class PremiumGuild {
-  @Prop()
-  guild_id: string;
+    @Prop()
+    guild_id: string;
 
-  @Prop()
-  set_by: string
+    @Prop()
+    set_by: string
 
-  @Prop()
-  premium_started: number;
+    @Prop()
+    premium_started: number;
 
-  @Prop()
-  premium_ends: number;
+    @Prop()
+    premium_ends: number;
 }
 
 export type PremiumUserDocument = HydratedDocument<PremiumUser>;

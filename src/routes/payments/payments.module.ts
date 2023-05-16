@@ -1,6 +1,9 @@
 import {Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
-import {PremiumGuildSchema, PremiumUserSchema} from "./payments.schema";
+import {
+    PremiumGuildSchema,
+    PremiumUserSchema
+} from "./payments.schema";
 import {PaymentsController} from "./payments.controller";
 import {PaymentsService} from "./payments.service";
 
@@ -14,7 +17,7 @@ import {PaymentsService} from "./payments.service";
             {
                 name: 'premium_guilds',
                 schema: PremiumGuildSchema
-            }
+            },
         ]),
     ],
     controllers: [PaymentsController],

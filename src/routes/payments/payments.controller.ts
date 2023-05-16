@@ -1,7 +1,7 @@
-import {Body, Controller, Post} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post} from "@nestjs/common";
 import {PaymentsService} from "./payments.service";
 import {CreateProductDto} from "./dto/create-product-dto";
-import {CreateSubscriptionDto} from "./dto/create-subscription-dto";
+import {CreatePlanDto} from "./dto/create-plan-dto";
 
 @Controller('payments')
 export class PaymentsController {
@@ -14,9 +14,34 @@ export class PaymentsController {
         return this.paymentsService.createProduct(createProductDto);
     }
 
-    @Post('subscriptions')
-    async createSubscription(@Body() createSubscriptionDto: CreateSubscriptionDto) {
-        return this.paymentsService.createSubscription(createSubscriptionDto);
+    @Get('products')
+    async findAllProducts() {
+        return this.paymentsService.findAllProducts();
+    }
+
+    @Get('products/:id')
+    async findProduct(@Param("id") id: string) {
+        return this.paymentsService.findProduct(id);
+    }
+
+    @Post('plans')
+    async createSubscription(@Body() createPlanDto: CreatePlanDto) {
+        return this.paymentsService.createPlan(createPlanDto);
+    }
+
+    @Get('plans')
+    async findAllPlans() {
+        return this.paymentsService.findAllPlans();
+    }
+
+    @Get('plans/:id')
+    async findPlan(@Param("id") id: string) {
+        return this.paymentsService.findPlan(id);
+    }
+
+    @Post('plans/:id/deactivate')
+    async deactivatePlan(@Param("id") id: string) {
+        return this.paymentsService.deactivatePlan(id);
     }
 
 }

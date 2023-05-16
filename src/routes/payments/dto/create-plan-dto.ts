@@ -1,6 +1,6 @@
 import {IsArray, IsBoolean, IsIn, IsNotEmpty, IsObject, IsOptional, IsString, Length} from "class-validator";
 
-export class CreateSubscriptionDto {
+export class CreatePlanDto {
     /**
      * The ID of the product created through Catalog Products API.
      */
@@ -38,7 +38,7 @@ export class CreateSubscriptionDto {
      * can have at most two trial cycles and only one regular cycle.
      */
     @IsArray()
-    billing_cycles: SubscriptionBillingCycle[];
+    billing_cycles: PlanBillingCycle[];
 
     /**
      * Indicates whether you can subscribe to this plan by providing a quantity
@@ -53,18 +53,18 @@ export class CreateSubscriptionDto {
      */
     @IsObject()
     @IsNotEmpty()
-    payment_preferences: SubscriptionPaymentPreferences
+    payment_preferences: PlanPaymentPreferences
 
     @IsObject()
     @IsOptional()
-    taxes?: SubscriptionTaxes
+    taxes?: PlanTaxes
 }
 
 /**
  * Billing cycle for trial billing and regular billing. A plan can have at most
  * two trial cycles and only one regular cycle.
  */
-type SubscriptionBillingCycle = {
+type PlanBillingCycle = {
     /**
      * The tenure type of the billing cycle. In case of a plan having trial cycle,
      * only 2 trial cycles are allowed per plan.
@@ -89,7 +89,7 @@ type SubscriptionBillingCycle = {
      * The active pricing scheme for this billing cycle. A free trial billing
      * cycle does not require a pricing scheme.
      */
-    pricing_scheme: SubscriptionPricingScheme,
+    pricing_scheme: PlanPricingScheme,
     /**
      * The frequency details for this billing cycle.
      */
@@ -100,7 +100,7 @@ type SubscriptionBillingCycle = {
  * The active pricing scheme for this billing cycle.
  * A free trial billing cycle does not require a pricing scheme.
  */
-type SubscriptionPricingScheme = {
+export type PlanPricingScheme = {
     /**
      * The pricing model for tiered plan. The tiers parameter is required.
      * The pricing model can either be `VOLUME` or `TIERED`.
@@ -159,7 +159,7 @@ type SubscriptionFrequency = {
 /**
  * The payment preferences for a subscription.
  */
-type SubscriptionPaymentPreferences = {
+type PlanPaymentPreferences = {
     /**
      * Indicates whether to automatically bill the outstanding amount
      * in the next billing cycle.
@@ -185,7 +185,7 @@ type SubscriptionPaymentPreferences = {
 /**
  * The tax details.
  */
-type SubscriptionTaxes = {
+type PlanTaxes = {
     /**
      * Indicates whether the tax was already included in the billing amount.
      */

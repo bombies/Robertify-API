@@ -10,6 +10,7 @@ import {GuildRedisManager} from './guild.redis-manager';
 import {BotWebClient} from 'src/utils/webclients/BotWebClient';
 import {SchedulerRegistry} from "@nestjs/schedule";
 import {AxiosError} from "axios";
+import { SpringException } from 'src/utils/types/spring-exception';
 
 mongooseLong(mongoose);
 
@@ -54,13 +55,44 @@ export class GuildService {
                 server_id: id
             })).data;
         } catch (e) {
-            if (e instanceof AxiosError)
+            if (e instanceof AxiosError) {
+                const err: SpringException = e.response.data;
                 throw new HttpException(
-                    e.message,
-                    e.response.status,
+                    err.detail,
+                    e.status || 401,
                     { cause: e }
                 );
+            }
+            
             Logger.error(`An error occurred attempting to create a request channel for guild with ID ${id}`, e);
+            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e});
+        }
+    }
+
+    async deleteRequestChannel(id: string) {
+        const guild = await this.rawFindGuild(id);
+        const reqChannelObj = guild.dedicated_channel;
+
+        if (!reqChannelObj || !reqChannelObj.channel_id || reqChannelObj.channel_id === '-1')
+            throw new HttpException(
+                `Server with id ${id} doesn't have a channel set!`,
+                HttpStatus.BAD_REQUEST
+            );
+
+        const botWebClient = await BotWebClient.getInstance();
+        try {
+            return (await botWebClient.delete(`/reqchannel/${id}`)).data;
+        } catch (e) {
+            if (e instanceof AxiosError) {
+                const err: SpringException = e.response.data;
+                throw new HttpException(
+                    err.detail,
+                    e.status || 401,
+                    { cause: e }
+                );
+            }
+                
+            Logger.error(`An error occurred attempting to delete a request channel for guild with ID ${id}`, e);
             throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e});
         }
     }

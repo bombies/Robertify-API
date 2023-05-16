@@ -19,6 +19,8 @@ import {MainController} from './routes/main/main.controller';
 import {FavouriteTracksController} from './routes/favourite-tracks/favourite-tracks.controller';
 import {RedisModule} from '@liaoliaots/nestjs-redis';
 import {ScheduleModule} from "@nestjs/schedule";
+import {PaymentsModule} from "./routes/payments/payments.module";
+import {PaymentsController} from "./routes/payments/payments.controller";
 
 @Module({
     imports: [
@@ -47,6 +49,7 @@ import {ScheduleModule} from "@nestjs/schedule";
         FavouriteTracksModule,
         MainModule,
         CommandsModule,
+        PaymentsModule,
     ],
     controllers: [
         AppController,
@@ -55,6 +58,7 @@ import {ScheduleModule} from "@nestjs/schedule";
         CommandsController,
         MainController,
         FavouriteTracksController,
+        PaymentsController,
     ],
     providers: [
         AppService,

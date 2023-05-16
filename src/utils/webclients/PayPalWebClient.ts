@@ -10,7 +10,7 @@ export class PayPalWebClient {
         this.instance = axios.create({
             headers: {
                 Accept: 'application/json',
-                Authorization: `Bearer ${process.env.PAYPAL_CLIENT_SECRET}`,
+                Authorization: `Bearer ${process.env.PAYPAL_CLIENT_ACCESS_TOKEN}`,
             },
             timeout: 5 * 1000,
             ...options,

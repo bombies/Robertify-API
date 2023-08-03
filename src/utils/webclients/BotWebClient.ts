@@ -9,8 +9,6 @@ export class BotWebClient {
         this.instance = axios.create({
             headers: {
                 Accept: 'application/json',
-                'User-Agent': 'Robertify API (https://github.com/bombies/Robertify-API)',
-                Authorization: process.env.BOT_API_MASTER_PASSWORD,
             },
             timeout: 5 * 1000,
             ...options,

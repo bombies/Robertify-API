@@ -39,7 +39,7 @@ export class BotWebClient {
                 password: process.env.BOT_API_MASTER_PASSWORD,
             })
         ).data;
-        return data?.token;
+        return data?.access_token;
     }
 
     public static async getInstance(options?: CreateAxiosDefaults<any>) {

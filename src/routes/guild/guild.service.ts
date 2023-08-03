@@ -356,7 +356,7 @@ export class GuildService {
         if (buttonsToUpdate) {
             try {
                 const botWebClient = await BotWebClient.getInstance();
-                await botWebClient.post('/reqchannel/buttons', {
+                await botWebClient.patch('/reqchannel/buttons', {
                     server_id: guild.server_id.toString(),
                     buttons: buttonsToUpdate,
                 });

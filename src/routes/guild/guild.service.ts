@@ -361,7 +361,7 @@ export class GuildService {
                     buttons: buttonsToUpdate,
                 });
             } catch (ex) {
-                Logger.warn(
+                console.error(
                     "Couldn't update the request channel buttons for guild with id: " + guild.server_id,
                     ex
                 );

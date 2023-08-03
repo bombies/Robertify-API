@@ -313,7 +313,7 @@ export class GuildService {
                     locale: updateGuildDto.locale,
                 });
             } catch (e) {
-                Logger.error(
+                console.error(
                     "Couldn't update the locale for guild with id: " + guild.server_id,
                     e
                 );
@@ -330,10 +330,7 @@ export class GuildService {
                     theme: updateGuildDto.theme,
                 });
             } catch (ex) {
-                Logger.error(
-                    "Couldn't update the theme for guild with id: " + guild.server_id,
-                    ex
-                );
+                console.error("Couldn't update the theme for guild with id: " + guild.server_id, ex)
             }
 
             guild.theme = updateGuildDto.theme;

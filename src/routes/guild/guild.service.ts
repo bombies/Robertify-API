@@ -55,6 +55,7 @@ export class GuildService {
                 server_id: id
             })).data;
         } catch (e) {
+            Logger.error(e)
             if (e instanceof AxiosError) {
                 const err: SpringException = e.response.data;
                 throw new HttpException(
@@ -353,7 +354,7 @@ export class GuildService {
             }
         }
 
-        if (buttonsToUpdate) {
+        if (buttonsToUpdate.length) {
             try {
                 const botWebClient = await BotWebClient.getInstance();
                 await botWebClient.patch('/reqchannel/buttons', {

@@ -9,8 +9,6 @@ export class BotWebClient {
         this.instance = axios.create({
             headers: {
                 Accept: 'application/json',
-                'User-Agent': 'Robertify API (https://github.com/bombies/Robertify-API)',
-                Authorization: process.env.BOT_API_MASTER_PASSWORD,
             },
             timeout: 5 * 1000,
             ...options,
@@ -22,7 +20,7 @@ export class BotWebClient {
             async (error) => {
                 const originalRequest = error.config;
 
-                if (error.response.status === 403 && !originalRequest._retry) {
+                if ((error.response.status === 403 || error.response.status === 401) && !originalRequest._retry) {
                     const token = await this.getAccessToken();
                     originalRequest.headers['Authorization'] = `Bearer ${token}`;
                     originalRequest._retry = true;
@@ -41,7 +39,7 @@ export class BotWebClient {
                 password: process.env.BOT_API_MASTER_PASSWORD,
             })
         ).data;
-        return data?.token;
+        return data?.access_token;
     }
 
     public static async getInstance(options?: CreateAxiosDefaults<any>) {

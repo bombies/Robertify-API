@@ -10,7 +10,7 @@ import {GuildRedisManager} from './guild.redis-manager';
 import {BotWebClient} from 'src/utils/webclients/BotWebClient';
 import {SchedulerRegistry} from "@nestjs/schedule";
 import {AxiosError} from "axios";
-import { SpringException } from 'src/utils/types/spring-exception';
+import {SpringException} from 'src/utils/types/spring-exception';
 
 mongooseLong(mongoose);
 
@@ -55,15 +55,16 @@ export class GuildService {
                 server_id: id
             })).data;
         } catch (e) {
+            Logger.error(e)
             if (e instanceof AxiosError) {
                 const err: SpringException = e.response.data;
                 throw new HttpException(
                     err.detail,
                     e.status || 401,
-                    { cause: e }
+                    {cause: e}
                 );
             }
-            
+
             Logger.error(`An error occurred attempting to create a request channel for guild with ID ${id}`, e);
             throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e});
         }
@@ -88,11 +89,65 @@ export class GuildService {
                 throw new HttpException(
                     err.detail,
                     e.status || 401,
-                    { cause: e }
+                    {cause: e}
                 );
             }
-                
+
             Logger.error(`An error occurred attempting to delete a request channel for guild with ID ${id}`, e);
+            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e});
+        }
+    }
+
+    async updateTheme(id: string, theme: string) {
+        const guild = await this.rawFindGuild(id);
+
+        if (theme.toLowerCase() === guild.theme)
+            return {theme}
+
+        const botWebClient = await BotWebClient.getInstance();
+        try {
+            return (await botWebClient.post('/themes', {
+                server_id: id,
+                theme
+            })).data;
+        } catch (e) {
+            if (e instanceof AxiosError) {
+                const err: SpringException = e.response.data;
+                throw new HttpException(
+                    err.detail,
+                    e.status || 401,
+                    {cause: e}
+                );
+            }
+
+            Logger.error(`An error occurred attempting to create a request channel for guild with ID ${id}`, e);
+            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e});
+        }
+    }
+
+    async updateLocale(id: string, locale: string) {
+        const guild = await this.rawFindGuild(id);
+
+        if (locale.toLowerCase() === guild.locale)
+            return {locale}
+
+        const botWebClient = await BotWebClient.getInstance();
+        try {
+            return (await botWebClient.post('/locale', {
+                server_id: id,
+                locale
+            })).data;
+        } catch (e) {
+            if (e instanceof AxiosError) {
+                const err: SpringException = e.response.data;
+                throw new HttpException(
+                    err.detail,
+                    e.status || 401,
+                    {cause: e}
+                );
+            }
+
+            Logger.error(`An error occurred attempting to create a request channel for guild with ID ${id}`, e);
             throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR, {cause: e});
         }
     }
@@ -259,7 +314,7 @@ export class GuildService {
                     locale: updateGuildDto.locale,
                 });
             } catch (e) {
-                Logger.warn(
+                console.error(
                     "Couldn't update the locale for guild with id: " + guild.server_id,
                     e
                 );
@@ -276,10 +331,7 @@ export class GuildService {
                     theme: updateGuildDto.theme,
                 });
             } catch (ex) {
-                Logger.warn(
-                    "Couldn't update the theme for guild with id: " + guild.server_id,
-                    ex
-                );
+                console.error("Couldn't update the theme for guild with id: " + guild.server_id, ex)
             }
 
             guild.theme = updateGuildDto.theme;
@@ -297,20 +349,20 @@ export class GuildService {
                 Object.keys(guild.dedicated_channel.config).forEach(key => {
                     if (updateGuildDto.dedicated_channel.config[key] !== guild.dedicated_channel.config[key])
                         buttonsToUpdate.push(key);
-                        guild.dedicated_channel.config[key] = updateGuildDto.dedicated_channel.config[key];
+                    guild.dedicated_channel.config[key] = updateGuildDto.dedicated_channel.config[key];
                 })
             }
         }
 
-        if (buttonsToUpdate) {
+        if (buttonsToUpdate.length) {
             try {
                 const botWebClient = await BotWebClient.getInstance();
-                await botWebClient.post('/reqchannel/buttons', {
+                await botWebClient.patch('/reqchannel/buttons', {
                     server_id: guild.server_id.toString(),
                     buttons: buttonsToUpdate,
                 });
             } catch (ex) {
-                Logger.warn(
+                console.error(
                     "Couldn't update the request channel buttons for guild with id: " + guild.server_id,
                     ex
                 );
